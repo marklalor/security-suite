@@ -1,6 +1,9 @@
 # Security Suite
 A compilation of tools, scripts, and encryption algorithm implementations for the EECS 444 Computer Security final project at CWRU.
 
+## Report
+A report on these contents is available at [report/report.pdf](report/report.pdf)
+
 ## security-gui
 A graphical user interface for experimenting with the various encryption algorithm implementations.
 

@@ -1,0 +1,125 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{6}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Adya, Bahl, Padhye, A.Wolman, and Zhou}{Adya
+  et~al\mbox{.}}{2004}]%
+        {Adya-01}
+\bibfield{author}{\bibinfo{person}{A. Adya}, \bibinfo{person}{P. Bahl},
+  \bibinfo{person}{J. Padhye}, \bibinfo{person}{A.Wolman}, {and}
+  \bibinfo{person}{L. Zhou}.} \bibinfo{year}{2004}\natexlab{}.
+\newblock \showarticletitle{A multi-radio unification protocol for {IEEE}
+  802.11 wireless networks}. In \bibinfo{booktitle}{\emph{Proceedings of the
+  IEEE 1st International Conference on Broadnets Networks (BroadNets'04)}}.
+  \bibinfo{publisher}{IEEE}, \bibinfo{address}{Los Alamitos, CA},
+  \bibinfo{pages}{210--217}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{IEEE}{IEEE}{2004}]%
+        {2004:ITE:1009386.1010128}
+IEEE \bibinfo{year}{2004}\natexlab{}.
+\newblock \showarticletitle{IEEE TCSC Executive Committee}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the IEEE International Conference on
+  Web Services}} \emph{(\bibinfo{series}{ICWS '04})}. \bibinfo{publisher}{IEEE
+  Computer Society}, \bibinfo{address}{Washington, DC, USA},
+  \bibinfo{pages}{21--22}.
+\newblock
+\showISBNx{0-7695-2167-3}
+\urldef\tempurl%
+\url{https://doi.org/10.1109/ICWS.2004.64}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Kirschmer and Voight}{Kirschmer and
+  Voight}{2010}]%
+        {Kirschmer:2010:AEI:1958016.1958018}
+\bibfield{author}{\bibinfo{person}{Markus Kirschmer} {and}
+  \bibinfo{person}{John Voight}.} \bibinfo{year}{2010}\natexlab{}.
+\newblock \showarticletitle{Algorithmic Enumeration of Ideal Classes for
+  Quaternion Orders}.
+\newblock \bibinfo{journal}{\emph{SIAM J. Comput.}} \bibinfo{volume}{39},
+  \bibinfo{number}{5} (\bibinfo{date}{Jan.} \bibinfo{year}{2010}),
+  \bibinfo{pages}{1714--1747}.
+\newblock
+\showISSN{0097-5397}
+\urldef\tempurl%
+\url{https://doi.org/10.1137/080734467}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Thornburg}{Thornburg}{2001}]%
+        {Thornburg01}
+\bibfield{author}{\bibinfo{person}{Harry Thornburg}.}
+  \bibinfo{year}{2001}\natexlab{}.
+\newblock \bibinfo{title}{Introduction to Bayesian Statistics}.
+\newblock
+\newblock
+\urldef\tempurl%
+\url{http://ccrma.stanford.edu/~jos/bayes/bayes.html}
+\showURL{%
+Retrieved March 2, 2005 from \tempurl}
+
+
+\bibitem[\protect\citeauthoryear{TUG}{TUG}{2017}]%
+        {TUGInstmem}
+TUG \bibinfo{year}{2017}\natexlab{}.
+\newblock \bibinfo{title}{Institutional members of the {\TeX} Users Group}.
+\newblock
+\newblock
+\urldef\tempurl%
+\url{http://wwtug.org/instmem.html}
+\showURL{%
+Retrieved May 27, 2017 from \tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Veytsman}{Veytsman}{[n. d.]}]%
+        {CTANacmart}
+\bibfield{author}{\bibinfo{person}{Boris Veytsman}.} \bibinfo{year}{[n.
+  d.]}\natexlab{}.
+\newblock \bibinfo{title}{acmart---{C}lass for typesetting publications of
+  {ACM}}.
+\newblock
+\newblock
+\urldef\tempurl%
+\url{http://www.ctan.org/pkg/acmart}
+\showURL{%
+Retrieved May 27, 2017 from \tempurl}
+
+
+\end{thebibliography}
