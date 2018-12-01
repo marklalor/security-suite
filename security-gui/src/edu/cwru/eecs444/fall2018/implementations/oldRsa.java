@@ -1,13 +1,8 @@
 package edu.cwru.eecs444.fall2018.implementations;
-
-import edu.cwru.eecs444.fall2018.Utilities;
-
 import java.math.BigInteger;
 import java.util.Random;
 
-import static edu.cwru.eecs444.fall2018.Utilities.bytesToHex;
-
-public class Rsa {
+public class oldRsa {
     private static final int DEFAULT_KEY_SIZE = 2048;
     private static final int DEFAULT_PUBLIC_EXP = 65537;
     private static final BigInteger ONE = BigInteger.ONE;
@@ -56,27 +51,7 @@ public class Rsa {
      * @return byte[] This returns the encrypted message
      */
     private static byte[] encrypt(final byte[] m, final byte[] n, final byte[] e) {
-        byte[][] chunked;
-        byte[] encryptedChunk;
-        int j = 0;
-
-        if(m.length < DEFAULT_KEY_SIZE){
-            chunked = new byte[1][m.length];
-            chunked[0] = m;
-        }
-        else{
-             chunked = chunk(m, DEFAULT_KEY_SIZE);
-        }
-
-        byte[] output = new byte[chunked.length * DEFAULT_KEY_SIZE];
-
-        for(int i = 0; i < chunked.length; i++){
-        	encryptedChunk = encrypt(new BigInteger(chunked[i]), new BigInteger(n), new BigInteger(e)).toByteArray();
-        	System.arraycopy(encryptedChunk, 0, output, j, encryptedChunk.length);
-        	j = j + encryptedChunk.length;
-        }
-
-        return output;
+        return encrypt(new BigInteger(m), new BigInteger(n), new BigInteger(e)).toByteArray();
     }
 
     public static BigInteger encrypt(final BigInteger m, final BigInteger n, final BigInteger e) {
@@ -127,19 +102,16 @@ public class Rsa {
         }
     }
 
-    private static byte[][] chunk(final byte[] input, int chunkLength) {
-        byte[][] chunkedInput = new byte[(input.length + 1) / chunkLength][chunkLength];
-
-        int i =0;
-        while (i < chunkedInput.length) {
-            chunkedInput[i] = new byte[chunkLength];
-            System.arraycopy(input, chunkLength*i, chunkedInput[i], 0, Math.min(chunkLength, input.length-chunkLength*i));
-            i++;
+    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
-
-        return chunkedInput;
+        return new String(hexChars);
     }
-
 
     public static void main(String[] args) {
         final KeyPair keyPair = generateKeyPair(DEFAULT_KEY_SIZE);
