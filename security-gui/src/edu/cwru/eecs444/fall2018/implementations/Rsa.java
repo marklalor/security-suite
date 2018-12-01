@@ -56,7 +56,18 @@ public class Rsa {
      * @return byte[] This returns the encrypted message
      */
     private static byte[] encrypt(final byte[] m, final byte[] n, final byte[] e) {
-        return encrypt(new BigInteger(m), new BigInteger(n), new BigInteger(e)).toByteArray();
+        byte[][] chunked = chunk(m, DEFAULT_KEY_SIZE);
+        byte[] encryptedChunk;
+        byte[] output = new byte[chunked.length * DEFAULT_KEY_SIZE];
+        int j = 0;
+
+        for(int i = 0; i < chunked.length; i++){
+        	encryptedChunk = encrypt(new BigInteger(chunked[i]), new BigInteger(n), new BigInteger(e)).toByteArray();
+        	System.arraycopy(encryptedChunk, 0, output, j, encryptedChunk.length);
+        	j = j + encryptedChunk.length;
+        }
+
+        return output;
     }
 
     public static BigInteger encrypt(final BigInteger m, final BigInteger n, final BigInteger e) {
@@ -71,7 +82,18 @@ public class Rsa {
      * @return byte[] This returns the decrypted message
      */
     private static byte[] decrypt(final byte[] c, final byte[] d, final byte[] n) {
-        return decrypt(new BigInteger(c), new BigInteger(d), new BigInteger(n)).toByteArray();
+        byte[][] chunked = chunk(c, DEFAULT_KEY_SIZE);
+        byte[] decryptedChunk;
+        byte[] output = new byte[chunked.length * DEFAULT_KEY_SIZE];
+        int j = 0;
+
+        for(int i = 0; i < chunked.length; i++){
+        	decryptedChunk = decrypt(new BigInteger(chunked[i]), new BigInteger(d), new BigInteger(n)).toByteArray();
+        	System.arraycopy(decryptedChunk, 0, output, j, decryptedChunk.length);
+        	j = j + decryptedChunk.length;
+        }
+
+        return output;
     }
 
     private static BigInteger decrypt(final BigInteger c, final BigInteger d, final BigInteger n) {
