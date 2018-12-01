@@ -1,5 +1,7 @@
 package edu.cwru.eecs444.fall2018;
 
+import edu.cwru.eecs444.fall2018.implementations.VigenereCipher;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,18 @@ public class Interfacers {
     public static final Map<String, Object> INTERFACERS = new HashMap<>();
 
     static {
+        INTERFACERS.put("Vigenere Cipher", new TextInterfacer() {
+            @Override
+            public char[] encipher(char[] key, char[] plaintext) {
+                return VigenereCipher.encode(key, plaintext);
+            }
+
+            @Override
+            public char[] decipher(char[] key, char[] ciphertext) {
+                return VigenereCipher.decode(key, ciphertext);
+            }
+        });
+
         INTERFACERS.put("Binary Python", new PythonBinaryInterfacer("../python-template/program.py"));
         INTERFACERS.put("Text Python", new PythonTextInterfacer("../python-template/program_text.py"));
     }
