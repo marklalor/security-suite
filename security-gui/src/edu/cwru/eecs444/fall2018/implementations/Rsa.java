@@ -1,5 +1,11 @@
+package edu.cwru.eecs444.fall2018.implementations;
+
+import edu.cwru.eecs444.fall2018.Utilities;
+
 import java.math.BigInteger;
 import java.util.Random;
+
+import static edu.cwru.eecs444.fall2018.Utilities.bytesToHex;
 
 public class Rsa {
     private static final int DEFAULT_KEY_SIZE = 2048;
@@ -29,12 +35,12 @@ public class Rsa {
     }
 
     private static boolean validKeyPair(final int keySize,
-            final BigInteger lambda,
-            final BigInteger p,
-            final BigInteger e,
-            final BigInteger q) {
+                                        final BigInteger lambda,
+                                        final BigInteger p,
+                                        final BigInteger e,
+                                        final BigInteger q) {
 
-        return e.gcd(lambda).equals(ONE) && 
+        return e.gcd(lambda).equals(ONE) &&
                 p.subtract(q).abs().subtract(ONE.shiftLeft(keySize / 2 - 100)).signum() == 1;
     }
 
@@ -75,7 +81,7 @@ public class Rsa {
     private static class KeyPair {
         private final byte[] publicKey, publicKeyExp, privateKey;
 
-        KeyPair(final BigInteger publicKey, 
+        KeyPair(final BigInteger publicKey,
                 final BigInteger publicKeyExp,
                 final BigInteger privateKey) {
             this.publicKey = publicKey.toByteArray();
@@ -101,16 +107,19 @@ public class Rsa {
         }
     }
 
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    private static byte[][] chunk(final byte[] input, int chunkLength) {
+        byte[][] chunkedInput = new byte[(input.length + 1) / chunkLength][chunkLength];
+
+        int i =0;
+        while (i < chunkedInput.length) {
+            chunkedInput[i] = new byte[chunkLength];
+            System.arraycopy(input, chunkLength*i, chunkedInput[i], 0, Math.min(chunkLength, input.length-chunkLength*i));
+            i++;
         }
-        return new String(hexChars);
+
+        return chunkedInput;
     }
+
 
     public static void main(String[] args) {
         final KeyPair keyPair = generateKeyPair(DEFAULT_KEY_SIZE);

@@ -48,6 +48,7 @@ public class Interfacers {
 
         @Override
         public char[] encipher(char[] key, char[] plaintext) throws IOException {
+
             return runProgram("encipher", key, plaintext);
         }
 
