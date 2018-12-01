@@ -1,4 +1,18 @@
-#!/bin/bash -x
+#!/bin/bash
+
+divider() {
+	# echo "..........................."
+	echo "================================"
+}
+
+hash_passwords_file() {
+	echo "Hashing the passwords in $1..."
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		for i in $(cat $1); do echo -n "$i"| md5 >> "$1.md5"; done
+	else
+        for i in $(cat $1); do echo -n "$i"| md5sum | tr -d " -" >> "md5_$1.md5"; done
+	fi
+}
 
 function make_popular_hashes() {
 	clear
@@ -6,7 +20,7 @@ function make_popular_hashes() {
 	rm data/100k_common_passwords_md5.txt
 
 	read -p "Let's generate some hashes from a list of popular passwords."
-	echo "We have a list of 10 million passwords:"
+	echo "We start with a list of 10 million passwords:"
 	head -10 data/10m_top_passwords.txt
 
 	read -p "Next we will generate a smaller list of passwords (10 million to 10 thousand)"
@@ -16,14 +30,76 @@ function make_popular_hashes() {
 	head -10 data/100k_common_passwords.txt
 
 	read -p "Next we will create a list of md5 hashes from the password list"
-	for i in $(cat data/100k_common_passwords.txt); do echo -n "$i"| md5sum | tr -d " -" >> data/100k_common_passwords_md5.txt; done
+	hash_passwords_file data/100k_common_passwords.txt
+	
 	echo "Now we have md5 hashes of the 10000 passwords:"
 	head -10 data/100k_common_passwords_md5.txt
 }
 
-function crack_hashes_simple() {
-	clear
-
+function crack_simple() {
+	hashcat --potfile-path results/demo_1_letters.pot \
+	-m 0 -a 3 \
+	--increment \
+    data/100k_common_passwords.txt.md5 \
+    "?l?l?l?l?l?l"
 }
 
-make_popular_hashes
+function crack_letters_numbers() {
+	hashcat --potfile-path results/demo_2_letters_numbers.pot \
+	-m 0 -a 3 \
+	data/100k_common_passwords.txt.md5 \
+	"?l?l?l?l?d?d"
+}
+
+function crack_rockyou() {
+	hashcat --potfile-path results/demo_3_rockyou.pot \
+	-m 0 -a 3 \
+	data/100k_common_passwords.txt.md5 \
+	data/rockyou.txt
+}
+
+function make_short_word_hashes() {
+	clear
+	rm data/word_passwords.txt.md5
+
+	read -p "Let's consider a few passwords made by combining short words..."
+	divider
+	cat data/word_passwords.txt
+	echo ""
+	
+	divider
+	read -p "Now let's hash these passwords for our testing..."
+	divider
+	hash_passwords_file data/word_passwords.txt
+	divider
+	cat data/word_passwords.txt.md5
+	divider
+	echo "Nice, we have some hashes to test!"
+	divider
+	read -p "Press enter to move on to cracking..."
+}
+
+function crack_short_words() {
+	clear
+	echo "The following method combines some combination of two words from a top-10000 dictionary..."
+	echo "If we restrict ourselves to short words, we have 2184 entries, here are a few:"
+	divider
+	head -10 data/google-10000-english-usa-no-swears-short.txt
+	divider
+	echo "The keyspace is 2184^2=4769856 = 22 bits entropy."
+	divider
+	read -p "Press enter to begin cracking {word}{word}..."
+	hashcat --potfile-path results/demo_4_short_words.pot \
+	-m 0 -a 1 \
+	data/word_passwords.txt.md5 \
+	data/google-10000-english-usa-no-swears-short.txt \
+	data/google-10000-english-usa-no-swears-short.txt
+}
+
+# make_popular_hashes
+# crack_simple
+# crack_letters_numbers
+# crack_rockyou
+make_short_word_hashes
+crack_short_words
+
