@@ -1,5 +1,7 @@
 package edu.cwru.eecs444.fall2018;
 
+import edu.cwru.eecs444.fall2018.implementations.Rsa;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -34,7 +36,7 @@ public class GraphicalInterface {
 
 
     private static JTextArea makeTextArea() {
-        JTextArea area = new JTextArea(5, 14);
+        JTextArea area = new JTextArea(4, 14);
         area.setFont(new Font("monospaced", Font.PLAIN, 12));
         area.setWrapStyleWord(false);
         area.setLineWrap(true);
@@ -103,18 +105,45 @@ public class GraphicalInterface {
         JComponent outputTextComponent = makeFullComponent("Result Text", outputText);
 
         actionButton.addActionListener(e -> {
-            final char[] key = inputKey.getText().toCharArray();
-            final char[] text = inputText.getText().toCharArray();
 
             try {
-                final char[] output = action.doAction(key, text);
-                outputText.setText(String.valueOf(output));
+                final String output = action.doAction(inputKey.getText(), inputText.getText());
+                outputText.setText(output);
             } catch (Exception ex) {
                 outputText.setText("Exception occurred: " + ex.toString());
             }
         });
 
         Arrays.asList(inputKeyComponent, inputTextComponent, outputTextComponent).stream().forEach(panel::add);
+
+        return panel;
+    }
+
+    private static JComponent createKeypairGenPanel(String buttonText, Interfacers.KeypairGenInterfacer keypairGenInterfacer) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JButton actionButton = new JButton(buttonText);
+        panel.add(actionButton);
+
+        JTextArea outputKeyPrivate = makeTextArea();
+        JTextArea outputKeyPublic = makeTextArea();
+
+        JComponent inputKeyComponent = makeFullComponent("Private Key", outputKeyPrivate);
+        JComponent inputTextComponent = makeFullComponent("Public Key", outputKeyPublic);
+
+        actionButton.addActionListener(e -> {
+
+            try {
+                final Rsa.KeyPair output = keypairGenInterfacer.generateKeyPair();
+                outputKeyPrivate.setText(Utilities.bytesToHexSpaced(output.getPrivateKey()));
+                outputKeyPublic.setText(Utilities.bytesToHexSpaced(output.getPublicKey()));
+            } catch (Exception ex) {
+                outputKeyPrivate.setText("Exception occurred: " + ex.toString());
+            }
+        });
+
+        Arrays.asList(inputKeyComponent, inputTextComponent).stream().forEach(panel::add);
 
         return panel;
     }
@@ -134,8 +163,9 @@ public class GraphicalInterface {
                 Interfacers.TextInterfacer textInterfacer = (Interfacers.TextInterfacer) interfacer;
                 frame.getContentPane().add(createTextPanel("Encipher " + interfacerName, textInterfacer::encipher));
                 frame.getContentPane().add(createTextPanel("Decipher " + interfacerName, textInterfacer::decipher));
-            } else if (interfacer instanceof Interfacers.RSAInterfacer) {
-
+            } else if (interfacer instanceof Interfacers.KeypairGenInterfacer) {
+                Interfacers.KeypairGenInterfacer keypairGenInterfacer = (Interfacers.KeypairGenInterfacer) interfacer;
+                frame.getContentPane().add(createKeypairGenPanel("Keygen " + interfacerName, keypairGenInterfacer));
             } else {
                 frame.add(new JLabel("No GUI to handle interfacer of type " + interfacer.getClass().getName()));
             }

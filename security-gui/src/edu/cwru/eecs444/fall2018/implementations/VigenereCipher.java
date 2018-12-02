@@ -16,7 +16,7 @@ public class VigenereCipher {
         char[] outputArray = new char[input.length];
         int keyIndex = 0;
         for (int i = 0; i < input.length; i++) {
-            outputArray[i] = (char) (((input[i] - key[keyIndex]) %26) + 'A');
+            outputArray[i] = (char) (((input[i] - key[keyIndex] + 26) %26) + 'A');
             keyIndex = (keyIndex + 1) % key.length;
         }
         return outputArray;
@@ -25,6 +25,6 @@ public class VigenereCipher {
     public static void main(String[] args) {
         char[] key = "KEY".toCharArray();
         char[] input = "THISISASENTENCE".toCharArray();
-        System.out.println(decode(key, encode(key, input)));
+        System.out.println(new String(decode(key, encode(key, input)))); // prints :H/9I9AS+NT+NC+
     }
 }

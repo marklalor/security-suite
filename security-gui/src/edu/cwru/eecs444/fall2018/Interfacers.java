@@ -1,5 +1,6 @@
 package edu.cwru.eecs444.fall2018;
 
+import edu.cwru.eecs444.fall2018.implementations.Rsa;
 import edu.cwru.eecs444.fall2018.implementations.VigenereCipher;
 
 import java.io.ByteArrayOutputStream;
@@ -18,15 +19,17 @@ public class Interfacers {
     static {
         INTERFACERS.put("Vigenere Cipher", new TextInterfacer() {
             @Override
-            public char[] encipher(char[] key, char[] plaintext) {
-                return VigenereCipher.encode(key, plaintext);
+            public String encipher(String key, String plaintext) {
+                return new String(VigenereCipher.encode(key.toUpperCase().toCharArray(), plaintext.toUpperCase().toCharArray()));
             }
 
             @Override
-            public char[] decipher(char[] key, char[] ciphertext) {
-                return VigenereCipher.decode(key, ciphertext);
+            public String decipher(String key, String ciphertext) {
+                return new String(VigenereCipher.decode(key.toUpperCase().toCharArray(), ciphertext.toUpperCase().toCharArray()));
             }
         });
+
+        INTERFACERS.put("RSA Keygen", (KeypairGenInterfacer) () -> Rsa.generateKeyPair(Rsa.DEFAULT_KEY_SIZE));
 
         INTERFACERS.put("Binary Python", new PythonBinaryInterfacer("../python-template/program.py"));
         INTERFACERS.put("Text Python", new PythonTextInterfacer("../python-template/program_text.py"));
@@ -40,10 +43,9 @@ public class Interfacers {
             this.programPath = programPath;
         }
 
-        private char[] runProgram(String action, char[] key, char[] plaintext) throws IOException {
+        private String runProgram(String action, String key, String plaintext) throws IOException {
             // Provide hex-encoded binary data to the python program
-            ProcessBuilder builder= new ProcessBuilder("python", programPath,
-                    action, String.valueOf(key), String.valueOf(plaintext));
+            ProcessBuilder builder= new ProcessBuilder("python", programPath, action, key, plaintext);
             Process p = builder.start();
 
             // Read characters from stdout of program as response
@@ -57,17 +59,17 @@ public class Interfacers {
                 buffer.write(data, 0, readByte);
             }
 
-            return new String(buffer.toByteArray(), Interfacers.UTF8_CHARSET).toCharArray();
+            return new String(buffer.toByteArray(), Interfacers.UTF8_CHARSET);
         }
 
         @Override
-        public char[] encipher(char[] key, char[] plaintext) throws IOException {
+        public String encipher(String key, String plaintext) throws IOException {
 
             return runProgram("encipher", key, plaintext);
         }
 
         @Override
-        public char[] decipher(char[] key, char[] ciphertext) throws IOException {
+        public String decipher(String key, String ciphertext) throws IOException {
             return runProgram("decipher", key, ciphertext);
         }
     }
@@ -118,7 +120,7 @@ public class Interfacers {
 
     @FunctionalInterface
     public interface TextAction {
-        char[] doAction(char[] key, char[] text) throws Exception;
+        String doAction(String key, String text) throws Exception;
     }
 
     public interface BinaryInterfacer {
@@ -127,23 +129,11 @@ public class Interfacers {
     }
 
     public interface TextInterfacer {
-        char[] encipher(char[] key, char[] plaintext) throws Exception;
-        char[] decipher(char[] key, char[] ciphertext) throws Exception;
+        String encipher(String key, String plaintext) throws Exception;
+        String decipher(String key, String ciphertext) throws Exception;
     }
 
-    public static class KeyPair {
-        public final byte[] privateKey;
-        public final byte[] publicKey;
-
-        public KeyPair(byte[] privateKey, byte[] publicKey) {
-            this.privateKey = privateKey;
-            this.publicKey = publicKey;
-        }
-    }
-
-    public interface RSAInterfacer {
-        KeyPair keygen();
-        byte[] encipher(byte[] key, byte[] plaintext) throws Exception;
-        byte[] decipher(byte[] key, byte[] ciphertext) throws Exception;
+    public interface KeypairGenInterfacer {
+        Rsa.KeyPair generateKeyPair();
     }
 }
