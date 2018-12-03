@@ -89,6 +89,43 @@ public class GraphicalInterface {
         return panel;
     }
 
+    public static JComponent createPureBinaryPanel(String buttonText, final Interfacers.BinaryAction action) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JButton actionButton = new JButton(buttonText);
+        panel.add(actionButton);
+
+        // Input boxes
+        JTextArea inputKeyBinary = makeTextArea();
+        JTextArea inputTextBinary = makeTextArea();
+        // Output boxes
+        JTextArea outputBinary = makeTextArea();
+
+        JComponent inputKeyBinaryComponent = makeFullComponent("Key Bytes", inputKeyBinary);
+        JComponent inputTextBinaryComponent = makeFullComponent("Text Bytes", inputTextBinary);
+        // Output boxes
+        JComponent outputBinaryComponent = makeFullComponent("Result Bytes", outputBinary);
+
+        actionButton.addActionListener(e -> {
+            final byte[] key = Utilities.hexStringToByteArray(
+                    inputKeyBinary.getText().replaceAll("\\s+",""));
+            final byte[] text = Utilities.hexStringToByteArray(
+                    inputTextBinary.getText().replaceAll("\\s+",""));
+
+            try {
+                final byte[] output = action.doAction(key, text);
+                outputBinary.setText(Utilities.bytesToHexSpaced(output));
+            } catch (Exception ex) {
+                outputBinary.setText("Exception occurred: " + ex.toString());
+            }
+        });
+
+        Arrays.asList(inputKeyBinaryComponent, inputTextBinaryComponent, outputBinaryComponent).stream().forEach(panel::add);
+
+        return panel;
+    }
+
     public static JComponent createTextPanel(String buttonText, final Interfacers.TextAction action) {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -157,8 +194,8 @@ public class GraphicalInterface {
             Object interfacer = interfacers.get(interfacerName);
             if (interfacer instanceof Interfacers.BinaryInterfacer) {
                 Interfacers.BinaryInterfacer binaryInterfacer = (Interfacers.BinaryInterfacer) interfacer;
-                frame.getContentPane().add(createBinaryPanel("Encipher " + interfacerName, binaryInterfacer::encipher));
-                frame.getContentPane().add(createBinaryPanel("Decipher " + interfacerName, binaryInterfacer::decipher));
+                frame.getContentPane().add(createPureBinaryPanel("Encipher " + interfacerName, binaryInterfacer::encipher));
+                frame.getContentPane().add(createPureBinaryPanel("Decipher " + interfacerName, binaryInterfacer::decipher));
             } else if (interfacer instanceof Interfacers.TextInterfacer) {
                 Interfacers.TextInterfacer textInterfacer = (Interfacers.TextInterfacer) interfacer;
                 frame.getContentPane().add(createTextPanel("Encipher " + interfacerName, textInterfacer::encipher));

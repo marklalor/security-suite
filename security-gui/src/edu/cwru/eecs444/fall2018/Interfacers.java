@@ -31,8 +31,8 @@ public class Interfacers {
 
         INTERFACERS.put("RSA Keygen", (KeypairGenInterfacer) () -> Rsa.generateKeyPair(Rsa.DEFAULT_KEY_SIZE));
 
-        INTERFACERS.put("Binary Python", new PythonBinaryInterfacer("../python-template/program.py"));
-        INTERFACERS.put("Text Python", new PythonTextInterfacer("../python-template/program_text.py"));
+        INTERFACERS.put("DES", new PythonBinaryInterfacer("../des/DES.py"));
+//        INTERFACERS.put("Text Python", new PythonTextInterfacer("../python-template/program_text.py"));
     }
 
     public static class PythonTextInterfacer implements TextInterfacer {
@@ -85,7 +85,7 @@ public class Interfacers {
         private byte[] runProgram(String action, byte[] key, byte[] plaintext) throws IOException {
             // Provide hex-encoded binary data to the python program
             ProcessBuilder builder= new ProcessBuilder("python", programPath,
-                    action, Utilities.bytesToHex(key), Utilities.bytesToHex(plaintext));
+                    action, Utilities.bytesToHex(key).toUpperCase(), Utilities.bytesToHex(plaintext).toUpperCase());
             Process p = builder.start();
 
             // Read bytes from stdout of program as response
