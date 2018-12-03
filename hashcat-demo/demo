@@ -16,27 +16,33 @@ hash_passwords_file() {
 
 function make_popular_hashes() {
 	clear
-	rm data/100k_common_passwords.txt
-	rm data/100k_common_passwords_md5.txt
+	rm -f data/100k_common_passwords.txt
+	rm -f data/100k_common_passwords_md5.txt
 
-	read -p "Let's generate some hashes from a list of popular passwords."
+	read -p "Let's generate some hashes from a list of popular passwords..."
+	divider
 	echo "We start with a list of 10 million passwords:"
 	head -10 data/10m_top_passwords.txt
-
+	divider
 	read -p "Next we will generate a smaller list of passwords (10 million to 10 thousand)"
 	awk 'NR % 100 == 0 || NR == 1' data/10m_top_passwords.txt > data/100k_common_passwords.txt
+	divider
 	echo "Now we have a evenly-distributed sample of 10000 passwords:"
 	cat data/10m_top_passwords.txt | wc -l
 	head -10 data/100k_common_passwords.txt
-
+	divider
 	read -p "Next we will create a list of md5 hashes from the password list"
+	divider
 	hash_passwords_file data/100k_common_passwords.txt
-	
+	divider
 	echo "Now we have md5 hashes of the 10000 passwords:"
+	divider
 	head -10 data/100k_common_passwords_md5.txt
+	divider
 }
 
 function crack_simple() {
+	read -p "Let's use hashcat to crack some passwords comprised of 6 letters..."
 	hashcat --potfile-path results/demo_1_letters.pot \
 	-m 0 -a 3 \
 	--increment \
@@ -45,22 +51,16 @@ function crack_simple() {
 }
 
 function crack_letters_numbers() {
+	read -p "How about for passwords of 4 letters and 2 numbers..."
 	hashcat --potfile-path results/demo_2_letters_numbers.pot \
 	-m 0 -a 3 \
 	data/100k_common_passwords.txt.md5 \
 	"?l?l?l?l?d?d"
 }
 
-function crack_rockyou() {
-	hashcat --potfile-path results/demo_3_rockyou.pot \
-	-m 0 -a 3 \
-	data/100k_common_passwords.txt.md5 \
-	data/rockyou.txt
-}
-
 function make_short_word_hashes() {
 	clear
-	rm data/word_passwords.txt.md5
+	rm -f data/word_passwords.txt.md5
 
 	read -p "Let's consider a few passwords made by combining short words..."
 	divider
@@ -89,17 +89,35 @@ function crack_short_words() {
 	echo "The keyspace is 2184^2=4769856 = 22 bits entropy."
 	divider
 	read -p "Press enter to begin cracking {word}{word}..."
-	hashcat --potfile-path results/demo_4_short_words.pot \
+	hashcat --potfile-path results/demo_3_short_words.pot \
 	-m 0 -a 1 \
 	data/word_passwords.txt.md5 \
 	data/google-10000-english-usa-no-swears-short.txt \
 	data/google-10000-english-usa-no-swears-short.txt
 }
 
-# make_popular_hashes
-# crack_simple
-# crack_letters_numbers
-# crack_rockyou
+function make_xkcd_hash() {
+	clear
+	rm -f data/xkcd_passwords.txt
+
+	read -p "Let's put the xkcd comic to the test..."
+	divider
+	imgcat data/xkcd.png
+	divider
+	echo "In what context is this to be 44 bits of entropy?"
+	read -p "Let's try to crack it with an ec2 server..."
+	clear
+	ssh hashcat_server "/data/demo/script.sh"
+}
+
+rm -f results/demo_1_letters.pot
+rm -f results/demo_2_letters_numbers.pot
+rm -f results/demo_3_short_words.pot
+
+make_popular_hashes
+crack_simple
+crack_letters_numbers
 make_short_word_hashes
 crack_short_words
+make_xkcd_hash
 
