@@ -8,7 +8,7 @@ import java.util.Random;
 import static edu.cwru.eecs444.fall2018.Utilities.bytesToHex;
 
 public class Rsa {
-    private static final int DEFAULT_KEY_SIZE = 2048;
+    public static final int DEFAULT_KEY_SIZE = 2048;
     private static final int DEFAULT_PUBLIC_EXP = 65537;
     private static final int MAX_MESSAGE_LENGTH = DEFAULT_KEY_SIZE / 8;
     private static final BigInteger ONE = BigInteger.ONE;
@@ -18,7 +18,7 @@ public class Rsa {
      * This method generates a new KeyPair object
      * @return This returns a KeyPair object used for RSA
      */
-    private static KeyPair generateKeyPair(final int keySize) {
+    public static KeyPair generateKeyPair(final int keySize) {
         while(true) {
             final BigInteger p = getRandomPrime(keySize / 2);
             final BigInteger e = BigInteger.valueOf(DEFAULT_PUBLIC_EXP);
@@ -102,7 +102,7 @@ public class Rsa {
         return c.modPow(d, n);
     }
 
-    private static class KeyPair {
+    public static class KeyPair {
         private final byte[] publicKey, publicKeyExp, privateKey;
 
         KeyPair(final BigInteger publicKey,
