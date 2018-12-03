@@ -4,6 +4,8 @@ Takes in 64 bit key, message and encrypts
 """ 
 
 #initial permutation table
+import sys
+
 IP = (
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
@@ -149,10 +151,10 @@ def encipher(key_bytes, message_bytes):
     key = int.from_bytes(key_bytes, byteorder='big', signed=False)
     message = int.from_bytes(message_bytes, byteorder='big', signed=False)
     cipher_text = encryption(key, message)
-    print("This is encrypted: {:x}".format(cipher_text))
     result = bin(cipher_text)
-    # ****** use this to get back value for printing to GUI ==> print("{:x}".format(int.from_bytes(bytearray(int(result, 2).to_bytes((len(result) + 7) // 8, 'big')), byteorder='big', signed=False)))
-    return bytearray(int(result, 2).to_bytes((len(result) + 7) // 8, 'big')) #To display correctly , you need to format with {:x}
+
+    return bytearray(int(result, 2).to_bytes(8, 'big'))
+
 
 # Given bytearrays key and ciphertext deciphers the message using the key
 def decipher(key_bytes, ciphered_text_bytes):
@@ -161,17 +163,13 @@ def decipher(key_bytes, ciphered_text_bytes):
         #pad the byte array
         byte = bytearray(8 - len(key_bytes))
         key_bytes[:0] = byte
-    elif (diff < 0):
-        #remove from right until 8 bytes 
-        key_bytes = key_bytes[:8]
         
     key = int.from_bytes(key_bytes, byteorder='big', signed=False)
     ciphered_text = int.from_bytes(ciphered_text_bytes, byteorder='big', signed=False)
     plain = encryption(key, ciphered_text, decryption=True)
-    print("This is decrypted {:x}".format(plain))
     result = bin(plain)
-    #**** use this to get a printable value for GUI from bytearray ==> print("{:x}".format(int.from_bytes(bytearray(int(result, 2).to_bytes((len(result) + 7) // 8, 'big')), byteorder='big', signed=False)))
-    return bytearray(int(result, 2).to_bytes((len(result) + 7) // 8, 'big'))
+    return bytearray(int(result, 2).to_bytes(8, 'big'))
+
 
 # Takes 64 bit key and message , encrypts message with key
 def encryption(key, message, decryption=False):
@@ -287,25 +285,8 @@ def make_round_keys(C0, D0):
     return r_keys
 
 
-#********** FOR TESTING -------->
-#make sure everything starts with "0x"
-k = 0x8e6f4d63dea53de65f#0x281dc8a34d3f345d5d#0x0123456789ABCDEF #0x0e329232ea6d0d73 # 64 bit
-j = bin(k)
-ar = bytearray(int(j, 2).to_bytes((len(j) + 7) // 8, 'big'))
-
-
-k2 = 0x133457799BBCDFF1
-m = 0x8e6f4d63dea53de65f#0x281dc8a34d3f345d5d#0xf7c24f74fa2b167e#0x8787878787878787
-n = bin(m)
-mar = bytearray(int(n, 2).to_bytes((len(n) + 7) // 8, 'big'))
-
 if __name__ == '__main__':
-    enciphered = encipher(ar, mar)
-    decipher(ar, enciphered)
-
-
-
-
-
-
-    
+    action, key, text = sys.argv[1:]
+    f = encipher if action == 'encipher' else decipher
+    output_bytes = f(bytearray.fromhex(key), bytearray.fromhex(text))
+    sys.stdout.buffer.write(output_bytes)
