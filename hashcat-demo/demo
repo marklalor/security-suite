@@ -1,11 +1,10 @@
 #!/bin/bash
 
-divider() {
-	# echo "..........................."
+function divider() {
 	echo "================================"
 }
 
-hash_passwords_file() {
+function hash_passwords_file() {
 	echo "Hashing the passwords in $1..."
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		for i in $(cat $1); do echo -n "$i"| md5 >> "$1.md5"; done
@@ -16,28 +15,29 @@ hash_passwords_file() {
 
 function make_popular_hashes() {
 	clear
-	rm -f data/100k_common_passwords.txt
-	rm -f data/100k_common_passwords_md5.txt
+	rm -f data/1k_common_passwords.txt
+	rm -f data/1k_common_passwords_md5.txt
 
 	read -p "Let's generate some hashes from a list of popular passwords..."
 	divider
-	echo "We start with a list of 10 million passwords:"
-	head -10 data/10m_top_passwords.txt
+	echo "We start with a list of 1 million popular passwords:"
 	divider
-	read -p "Next we will generate a smaller list of passwords (10 million to 10 thousand)"
-	awk 'NR % 100 == 0 || NR == 1' data/10m_top_passwords.txt > data/100k_common_passwords.txt
+	head -10 data/1m_top_passwords.txt
 	divider
-	echo "Now we have a evenly-distributed sample of 10000 passwords:"
-	cat data/10m_top_passwords.txt | wc -l
-	head -10 data/100k_common_passwords.txt
+	read -p "Next we will generate a smaller list of passwords (1 million to 1 thousand)"
+	awk 'NR % 1000 == 0' data/1m_top_passwords.txt > data/1k_common_passwords.txt
+	divider
+	echo "Now we have a evenly-distributed sample of 1000 passwords:"
+	divider
+	head -10 data/1k_common_passwords.txt
 	divider
 	read -p "Next we will create a list of md5 hashes from the password list"
 	divider
-	hash_passwords_file data/100k_common_passwords.txt
+	hash_passwords_file data/1k_common_passwords.txt
 	divider
-	echo "Now we have md5 hashes of the 10000 passwords:"
+	echo "Now we have md5 hashes of the 1000 passwords:"
 	divider
-	head -10 data/100k_common_passwords_md5.txt
+	head -10 data/1k_common_passwords.txt.md5
 	divider
 }
 
@@ -46,16 +46,19 @@ function crack_simple() {
 	hashcat --potfile-path results/demo_1_letters.pot \
 	-m 0 -a 3 \
 	--increment \
-    data/100k_common_passwords.txt.md5 \
+    data/1k_common_passwords.txt.md5 \
     "?l?l?l?l?l?l"
+    read -p "We cracked a lot with this simple pattern!"
 }
 
 function crack_letters_numbers() {
+	clear
 	read -p "How about for passwords of 4 letters and 2 numbers..."
 	hashcat --potfile-path results/demo_2_letters_numbers.pot \
 	-m 0 -a 3 \
-	data/100k_common_passwords.txt.md5 \
+	data/1k_common_passwords.txt.md5 \
 	"?l?l?l?l?d?d"
+	read -p "Nice! Cracked some more..."
 }
 
 function make_short_word_hashes() {
@@ -81,22 +84,23 @@ function make_short_word_hashes() {
 
 function crack_short_words() {
 	clear
-	echo "The following method combines some combination of two words from a top-10000 dictionary..."
+	echo "The following method combines some combination of two words from a top-10000 short words dictionary..."
 	echo "If we restrict ourselves to short words, we have 2184 entries, here are a few:"
 	divider
 	head -10 data/google-10000-english-usa-no-swears-short.txt
 	divider
-	echo "The keyspace is 2184^2=4769856 = 22 bits entropy."
+	echo "The keyspace is 2184^2=4769856 = 22 bits entropy under these assumptions."
 	divider
-	read -p "Press enter to begin cracking {word}{word}..."
+	read -p "We will begin cracking {word}{word}..."
 	hashcat --potfile-path results/demo_3_short_words.pot \
 	-m 0 -a 1 \
 	data/word_passwords.txt.md5 \
 	data/google-10000-english-usa-no-swears-short.txt \
 	data/google-10000-english-usa-no-swears-short.txt
+	read -p "Nice, we easily cracked a few of those short word-combination passwords."
 }
 
-function make_xkcd_hash() {
+function do_xkcd_demo() {
 	clear
 	rm -f data/xkcd_passwords.txt
 
@@ -104,10 +108,31 @@ function make_xkcd_hash() {
 	divider
 	imgcat data/xkcd.png
 	divider
-	echo "In what context is this to be 44 bits of entropy?"
-	read -p "Let's try to crack it with an ec2 server..."
+	read -p "In what context is this to be 44 bits of entropy?"
 	clear
-	ssh hashcat_server "/data/demo/script.sh"
+	echo "Let's consider a case where we found an important person's hash in a database dump"
+	divider
+	echo "some_database_dump.txt"
+	divider
+	echo "..."
+	echo "..."
+	echo "bigceoperson@bigcompany.com:07b9f88213042a955ab75ad295121f20"
+	echo "..."
+	echo "..."
+	divider
+	read -p "Interesting, what do we know about this person?"
+	divider
+	imgcat data/tweet.png
+	divider
+	read -p ""
+	clear
+	read -p "It seems like they like this xkcd comic! What if we try combining some larger words...?"
+	divider
+	echo "That's a pretty large keyspace for the wimpy GPU on this laptop."
+	echo "Let's try to crack it with an Amazon p2.xlarge ec2 server..."
+	read -p "Cost: \$0.90/hour."
+	clear
+	ssh hashcat_server "/data/demo/remote_script"
 }
 
 rm -f results/demo_1_letters.pot
@@ -119,5 +144,5 @@ crack_simple
 crack_letters_numbers
 make_short_word_hashes
 crack_short_words
-make_xkcd_hash
+do_xkcd_demo
 
