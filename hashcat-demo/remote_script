@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "Logged into remote server! ec2-3-16-15-190.us-east-2.compute.amazonaws.com"
+echo "Let's run hashcat on this Amazon p2.xlarge ec2 server..."
+read -p ""
+lspci -nnk | grep NVIDIA
+echo "We have a powerful graphics card!"
+echo ""
+echo "Let's try 3 5-word character combinations {word}{word}{word}..."
+read -p ""
+/data/demo/hashcat-utils/src/combinator3.bin /data/demo/5.txt /data/demo/5.txt /data/demo/5.txt | /data/hashcat/hashcat64.bin --potfile-disable -m 0 -a 0 -w 3 /data/demo/important_person.hash
