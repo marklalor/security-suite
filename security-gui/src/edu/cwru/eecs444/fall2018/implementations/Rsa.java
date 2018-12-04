@@ -51,19 +51,19 @@ public class Rsa {
 
     /**
      * This method encrypts a message with a public key and its exponent
-     * @param m This is the plain message as a byte array
-     * @param n This is the public key
-     * @param e This is the public key exponent
+     * @param message This is the plain message as a byte array
+     * @param publicKey This is the public key
+     * @param publicKeyExponent This is the public key exponent
      * @return byte[] This returns the encrypted message
      */
-    private static byte[] encrypt(final byte[] m, final byte[] n, final byte[] e) {
-        byte[][] chunked = chunk(m, MAX_MESSAGE_LENGTH);
+    public static byte[] encrypt(final byte[] message, final byte[] publicKey, final byte[] publicKeyExponent) {
+        byte[][] chunked = chunk(message, MAX_MESSAGE_LENGTH);
         byte[] encryptedChunk;
         int j = 0;
         byte[] output = new byte[MAX_MESSAGE_LENGTH * chunked.length];
 
         for(int i = 0; i < chunked.length; i++){
-            encryptedChunk = encrypt(new BigInteger(chunked[i]), new BigInteger(n), new BigInteger(e)).toByteArray();
+            encryptedChunk = encrypt(new BigInteger(chunked[i]), new BigInteger(publicKey), new BigInteger(publicKeyExponent)).toByteArray();
             System.arraycopy(encryptedChunk, 0, output, j, encryptedChunk.length);
             j = j + encryptedChunk.length;
         }
@@ -77,19 +77,19 @@ public class Rsa {
 
     /**
      * This method decrypts a message with the private key and public key
-     * @param c This is the encrypted message as a byte array
-     * @param d This is the private key
-     * @param n This is the public key
+     * @param message This is the encrypted message as a byte array
+     * @param privateKey This is the private key
+     * @param publicKey This is the public key
      * @return byte[] This returns the decrypted message
      */
-    private static byte[] decrypt(final byte[] c, final byte[] d, final byte[] n) {
-        byte[][] chunked = chunk(c, MAX_MESSAGE_LENGTH);
+    public static byte[] decrypt(final byte[] message, final byte[] privateKey, final byte[] publicKey) {
+        byte[][] chunked = chunk(message, MAX_MESSAGE_LENGTH);
         byte[] decryptedChunk;
         int j = 0;
         byte[] output = new byte[MAX_MESSAGE_LENGTH * chunked.length];
 
         for(int i = 0; i < chunked.length; i++){
-            decryptedChunk = decrypt(new BigInteger(chunked[i]), new BigInteger(d), new BigInteger(n)).toByteArray();
+            decryptedChunk = decrypt(new BigInteger(chunked[i]), new BigInteger(privateKey), new BigInteger(publicKey)).toByteArray();
             System.arraycopy(decryptedChunk, 0, output, j, decryptedChunk.length);
             j = j + decryptedChunk.length;
         }

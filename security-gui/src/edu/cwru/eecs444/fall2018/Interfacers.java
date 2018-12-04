@@ -7,14 +7,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Interfacers {
     public static final int MAX_MESSAGE_BYTES = 65536;
     public static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
-    public static final Map<String, Object> INTERFACERS = new HashMap<>();
+    public static final Map<String, Object> INTERFACERS = new LinkedHashMap<>();
 
     static {
         INTERFACERS.put("Vigenere Cipher", new TextInterfacer() {
@@ -29,10 +29,22 @@ public class Interfacers {
             }
         });
 
-        INTERFACERS.put("RSA Keygen", (KeypairGenInterfacer) () -> Rsa.generateKeyPair(Rsa.DEFAULT_KEY_SIZE));
-
         INTERFACERS.put("DES", new PythonBinaryInterfacer("../des/DES.py"));
-//        INTERFACERS.put("Text Python", new PythonTextInterfacer("../python-template/program_text.py"));
+
+        INTERFACERS.put("Keygen RSA", (KeypairGenInterfacer) () -> Rsa.generateKeyPair(Rsa.DEFAULT_KEY_SIZE));
+
+        INTERFACERS.put("RSA", new BinaryRSAInterfacer() {
+            @Override
+            public byte[] encipher(byte[] message, byte[] publicKey, byte[] publicKeyExponent) {
+                return Rsa.encrypt(message, publicKey, publicKeyExponent);
+            }
+
+            @Override
+            public byte[] decipher(byte[] message, byte[] privateKey, byte[] publicKey) {
+                return Rsa.decrypt(message, privateKey, publicKey);
+            }
+        });
+
     }
 
     public static class PythonTextInterfacer implements TextInterfacer {
@@ -126,6 +138,11 @@ public class Interfacers {
     public interface BinaryInterfacer {
         byte[] encipher(byte[] key, byte[] plaintext) throws Exception;
         byte[] decipher(byte[] key, byte[] ciphertext) throws Exception;
+    }
+
+    public interface BinaryRSAInterfacer {
+        byte[] encipher(byte[] message, byte[] publicKey, byte[] publicKeyExponent);
+        byte[] decipher(byte[] message, byte[] privateKey, byte[] publicKey);
     }
 
     public interface TextInterfacer {

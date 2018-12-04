@@ -89,6 +89,92 @@ public class GraphicalInterface {
         return panel;
     }
 
+    public static JComponent createRSAEncryptPanel(String buttonText, final Interfacers.BinaryRSAInterfacer interfacer) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JButton actionButton = new JButton(buttonText + "encrypt");
+        panel.add(actionButton);
+
+        // Input boxes
+        JTextArea inputPublicKey = makeTextArea();
+        JTextArea inputPublicKeyExponent = makeTextArea();
+        JTextArea inputMessage = makeTextArea();
+        // Output boxes
+        JTextArea outputBinary = makeTextArea();
+
+        JComponent inputPublicKeyComponent = makeFullComponent("Public Key Bytes", inputPublicKey);
+        JComponent inputPublicKeyExponentComponent = makeFullComponent("Public Key Exponent Bytes", inputPublicKeyExponent);
+        JComponent inputMessageComponent = makeFullComponent("Message Bytes", inputMessage);
+        // Output boxes
+        JComponent outputBinaryComponent = makeFullComponent("Result Bytes", outputBinary);
+
+        actionButton.addActionListener(e -> {
+            final byte[] publicKey = Utilities.hexStringToByteArray(
+                    inputPublicKey.getText().replaceAll("\\s+",""));
+            final byte[] publicKeyExponent = Utilities.hexStringToByteArray(
+                    inputPublicKeyExponent.getText().replaceAll("\\s+",""));
+            final byte[] message = Utilities.hexStringToByteArray(
+                    inputMessage.getText().replaceAll("\\s+",""));
+
+
+            try {
+                final byte[] output = interfacer.encipher(message, publicKey, publicKeyExponent);
+                outputBinary.setText(Utilities.bytesToHexSpaced(output));
+            } catch (Exception ex) {
+                outputBinary.setText("Exception occurred: " + ex.toString());
+            }
+        });
+
+        Arrays.asList(inputPublicKeyComponent, inputPublicKeyExponentComponent,
+                inputMessageComponent, outputBinaryComponent).stream().forEach(panel::add);
+
+        return panel;
+    }
+
+    public static JComponent createRSADecryptPanel(String buttonText, final Interfacers.BinaryRSAInterfacer interfacer) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JButton actionButton = new JButton(buttonText + " decrypt");
+        panel.add(actionButton);
+
+        // Input boxes
+        JTextArea inputPrivateKey = makeTextArea();
+        JTextArea inputPublicKey = makeTextArea();
+        JTextArea inputMessage = makeTextArea();
+        // Output boxes
+        JTextArea outputBinary = makeTextArea();
+
+        JComponent inputPrivateKeyComponent = makeFullComponent("Private Key Bytes", inputPrivateKey);
+        JComponent inputPublicKeyComponent = makeFullComponent("Public Key Bytes", inputPublicKey);
+        JComponent inputMessageComponent = makeFullComponent("Message Bytes", inputMessage);
+        // Output boxes
+        JComponent outputBinaryComponent = makeFullComponent("Result Bytes", outputBinary);
+
+        actionButton.addActionListener(e -> {
+            final byte[] privateKey = Utilities.hexStringToByteArray(
+                    inputPrivateKey.getText().replaceAll("\\s+",""));
+            final byte[] publicKey = Utilities.hexStringToByteArray(
+                    inputPublicKey.getText().replaceAll("\\s+",""));
+            final byte[] message = Utilities.hexStringToByteArray(
+                    inputMessage.getText().replaceAll("\\s+",""));
+
+
+            try {
+                final byte[] output = interfacer.decipher(message, privateKey, publicKey);
+                outputBinary.setText(Utilities.bytesToHexSpaced(output));
+            } catch (Exception ex) {
+                outputBinary.setText("Exception occurred: " + ex.toString());
+            }
+        });
+
+        Arrays.asList(inputPrivateKeyComponent, inputPublicKeyComponent,
+                inputMessageComponent, outputBinaryComponent).stream().forEach(panel::add);
+
+        return panel;
+    }
+
     public static JComponent createPureBinaryPanel(String buttonText, final Interfacers.BinaryAction action) {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -165,9 +251,11 @@ public class GraphicalInterface {
 
         JTextArea outputKeyPrivate = makeTextArea();
         JTextArea outputKeyPublic = makeTextArea();
+        JTextArea outputKeyPublicExponent = makeTextArea();
 
-        JComponent inputKeyComponent = makeFullComponent("Private Key", outputKeyPrivate);
-        JComponent inputTextComponent = makeFullComponent("Public Key", outputKeyPublic);
+        JComponent outputKeyPrivateComponent = makeFullComponent("Private Key", outputKeyPrivate);
+        JComponent outputKeyPublicComponent = makeFullComponent("Public Key", outputKeyPublic);
+        JComponent outputKeyPublicExponentComponent = makeFullComponent("Public Key Exponent", outputKeyPublicExponent);
 
         actionButton.addActionListener(e -> {
 
@@ -175,12 +263,14 @@ public class GraphicalInterface {
                 final Rsa.KeyPair output = keypairGenInterfacer.generateKeyPair();
                 outputKeyPrivate.setText(Utilities.bytesToHexSpaced(output.getPrivateKey()));
                 outputKeyPublic.setText(Utilities.bytesToHexSpaced(output.getPublicKey()));
+                outputKeyPublicExponent.setText(Utilities.bytesToHexSpaced(output.getPublicKeyExp()));
             } catch (Exception ex) {
                 outputKeyPrivate.setText("Exception occurred: " + ex.toString());
             }
         });
 
-        Arrays.asList(inputKeyComponent, inputTextComponent).stream().forEach(panel::add);
+        Arrays.asList(outputKeyPrivateComponent, outputKeyPublicComponent, outputKeyPublicExponentComponent)
+                .stream().forEach(panel::add);
 
         return panel;
     }
@@ -203,6 +293,10 @@ public class GraphicalInterface {
             } else if (interfacer instanceof Interfacers.KeypairGenInterfacer) {
                 Interfacers.KeypairGenInterfacer keypairGenInterfacer = (Interfacers.KeypairGenInterfacer) interfacer;
                 frame.getContentPane().add(createKeypairGenPanel("Keygen " + interfacerName, keypairGenInterfacer));
+            } else if (interfacer instanceof Interfacers.BinaryRSAInterfacer) {
+                Interfacers.BinaryRSAInterfacer binaryRSAInterfacer = (Interfacers.BinaryRSAInterfacer) interfacer;
+                frame.getContentPane().add(createRSAEncryptPanel("RSA ", binaryRSAInterfacer));
+                frame.getContentPane().add(createRSADecryptPanel("RSA ", binaryRSAInterfacer));
             } else {
                 frame.add(new JLabel("No GUI to handle interfacer of type " + interfacer.getClass().getName()));
             }
