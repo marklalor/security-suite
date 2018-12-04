@@ -6,10 +6,12 @@ end
 
 cipher_text = "tx iof elq prdx at gtqqg, ve amg gsi icedx at gtqqg, ve amg gsi mur zj iwfosy, wg hee hup ess bq jacytwtbrdw, uh jlw fvr ptaqu zj nsytir, wg hee hup ibcps sr wanvqrhwmfm, ve amg gsi esndsz cs wmsvg, tx iof elq grlwab bq hmfxyieg, ve amg gsi edetrs cs ssbs, ve amg gsi iwaeid cs oiedntv, is ulh qjrccfvvyk nsszvq if, hi toq ysfvvyk nsszvq if, hi isep exz tzmzu qtvqqg es tsngiz, kr hids nwp scvyk pwepgf hup sfvrc amm – vy wtcee, xts cpvucq hee gb qed zvvi fvr avqgryx bsetsp, hulx eczp sr wgd rawftieh nfxtcetxusf trewfeip ca txe prtrs frniujro, jaf tzsp ce qsd sitp, ub gsi eicpvxogtzq rrrvqs bq gaaclvugby szzl."
 puts cipher_text
-puts
-puts "You're given the above text, encrypted using a Vigenere Cypher with unkown key, and you want to decrypt it."
 gets
+
 text = cipher_text.upcase.delete("^a-zA-Z")
+puts text
+gets
+
 offsets = []
 for i in 0..(text.length - 3) do
 	sub = text[i, 3]
@@ -19,9 +21,7 @@ for i in 0..(text.length - 3) do
 		index = text.index(sub, index + 1)
 	end
 end
-
 puts offsets.join(" ")
-
 print "Period guess: "
 input = gets.strip.to_i
 
@@ -31,6 +31,10 @@ while i < text.length do
 	chunks << text[i, input]
 	i += input
 end
+
+puts
+puts chunks.join(" ")
+gets
 
 letter_counts = []
 possible_letters = []
@@ -56,13 +60,16 @@ for i in 0..(input-1) do
 	end
 	possible_letters << possible_letter
 	puts
-	puts
 end
+
+gets
 
 puts "Top 3 likely letters for key:"
 for i in 0..(input - 1) do
 	puts "Letter #{i + 1}: #{possible_letters[i].join(" ")}"
 end
+
+gets
 
 possible_keys = []
 for i in 0..2 do
@@ -81,14 +88,17 @@ end
 puts "Possible keys:"
 puts possible_keys.join(" ")
 
-puts
+gets
+
 puts "English keys:"
 puts possible_keys.select{|key| dictionary.key?(key)}.join(" ")
 
 trying = true
+puts
+print "Try key (enter 'EXIT' to stop):"
+input = gets.strip
+trying = false if input.eql?("EXIT")
 while (trying) do
-	print "Try key:"
-	input = gets.strip
 	key_index = 0
 	result = ""
 	text.chars.each do |c|
@@ -99,4 +109,8 @@ while (trying) do
 		end
 	end
 	puts result
+	puts
+	print "Try key (enter 'EXIT' to stop):"
+	input = gets.strip
+	trying = false if input.eql?("EXIT")
 end
