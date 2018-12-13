@@ -61,10 +61,9 @@
 \email{jsw107@case.edu}
 
 
-
-\begin{abstract}
-This is our abstract. Currently it is empty because no one has written it. In order to make it not empty, it must be written/
-\end{abstract}
+%\begin{abstract}
+%This is our abstract. Currently it is empty because no one has written it. In order to make it not empty, it must be written/
+%\end{abstract}
 
 \keywords{encryption, cipher, hash, entropy}
 
@@ -73,7 +72,15 @@ This is our abstract. Currently it is empty because no one has written it. In or
 % The default list of authors is too long for headers.
 % \renewcommand{\shortauthors}{G. Zhou et al.}
 
+\section{Abstract}
+
+This is our abstract. Currently it is empty because no one has written it. In order to make it not empty, it must be written.
+
 \section{Introduction}\label{sec:intro}
+
+Modern communications require special methods to ensure the security of information in the presence of adversaries that want to intercept or maliciously modify communicated data. An adversary may try to compromise the confidentiality, or integrity of data, or they may bypass an authentication completely with a carefully-crafted message.
+
+Symmetric key ciphers
 
 To begin, we ponder a quote from an anonymous philosopher.
 \begin{quote}
@@ -93,19 +100,19 @@ This article is divided into several sections, in Section [\ref{sec:intro}], we 
 
 This is a talk about all the types of ciphers, symmetric, asymmetric, maybe more!
 
-Here is the structure of the a bad algorithm:
+\section{Tool Design} \label{sec:impl}
+\subsection{Algorithm Implementations} \label{sec:algorithms}
+
+\subsubsection{DES}
+
+We show a high-level implementation of DES in Algorithm \ref{alg:des}. The DES algorithm has X main steps:
 
 \begin{enumerate}
-\item Break into blocks of size $k=\frac{n^7}{8}$
+\item Break into blocks of size $k=\frac{p^327}{8abc}$
 \item Encipher each block with magic
-\item Do XOR magic
-\item Implement DES
+\item Do XOR 452 times.
 \end{enumerate}
 
-\section{Cryptographic Algorithm Implementations} \label{sec:impl}
-\subsection{FakeDES}
-
-As Algorithm~\ref{alg:one} states, DES is a symmetric encryption algorithm with steps.
 
 % Algorithm
 \begin{algorithm}[t]
@@ -117,18 +124,18 @@ $c$ = $m \times k$
 	$c = mc^2$
 }
 \caption{FakeDES implementation}
-\label{alg:one}
+\label{alg:des}
 \end{algorithm}
 
-\subsection{RSA}
+\subsubsection{RSA}
+\hspace*{\fill} \\ % force newline
+\textit{TODO: RSA Description}
 
-RSA is asymmetric!
+\subsubsection{Vigenère Cipher}
+\hspace*{\fill} \\ % force newline
+\textit{TODO: Vigenère Cipher Description}
 
-\subsection{md5}
-
-Md5 is a hash algorithm!
-
-\section{SecuritySuiteGUI}\label{sec:gui}
+\subsection{SecuritySuiteGUI}\label{sec:gui}
 
 % Figure
 \begin{figure}
@@ -138,42 +145,25 @@ Md5 is a hash algorithm!
   \label{fig:one}
 \end{figure}
 
-\subsection{Goals}
+\subsection{Hashcat Demo}\label{sec:hashcat}
 
-Some description:
-
-\begin{lemma}[Lemma Subhead]The solution to the C-MWPC problem is no
-worse than the solution to the MWPC.
-\end{lemma}
-\begin{proof}
-Simply, any solution to the MWPC is also a solution to the
-C-MWPC. But some solutions to C-MWPC may not apply to the MWPC (if any
-coalescing were made).
-\end{proof}
-
-\section{Hashcat Demo}\label{sec:hashcat}
-
-Words go here!
+\textsc{Hashcat} is a software tool used to crack passwords, and can be used to leverage an available GPU for highly-parallelized general purpose computation. 
 
 \section{Vigenère Cipher Cracker}\label{sec:vinegar}
 
 Words go here too!
 
-\section{Evaluation}\label{sec:evaluation}
+\section{Results}\label{sec:results}
 
 Evaluation, efficiency? Challenges?
+
+\section{Related Work}\label{sec:relatedwork}
+
+Related work. Examples of citations with DOIs: \cite{2004:ITE:1009386.1010128, Kirschmer:2010:AEI:1958016.1958018}. Online citations: \cite{TUGInstmem, Thornburg01, CTANacmart}.
 
 \section{Discussion}\label{sec:discussion}
 
 What didn't we cover? :O
-
-\section{Conclusions}\label{sec:conclusions}
-
-We conclude that cryptography is very useful! $\frac{10}{10}$ would reccommend.
-
-\section{References Samples}
-
-A couple of citations with DOIs: \cite{2004:ITE:1009386.1010128, Kirschmer:2010:AEI:1958016.1958018}. Online citations: \cite{TUGInstmem, Thornburg01, CTANacmart}.
 
 % Appendix
 \appendix
