@@ -33,37 +33,32 @@
 % Document starts
 \begin{document}
 % Title portion
-\title{Security Suite: EECS 444 Final Project}
+\title{Security Suite: Team 4 EECS 444 Final Project}
 % \titlenote{We can add a note to the title}
 
 \author{Kim Almcrantz}
-\affiliation{\institution{Destroyer of Worlds}}
+%\affiliation{\institution{Case Western Reserve University}}
 \email{kaa97@case.edu}
 
 \author{Mark Lalor}
-\affiliation{\institution{Eater of Nightmares}}
+%\affiliation{\institution{Case Western Reserve University}}
 \email{mwl58@case.edu}
 
 \author{Brian Li}
-\affiliation{\institution{Summoner of Flames}}
+%\affiliation{\institution{Case Western Reserve University}}
 \email{bvl8@case.edu}
 
 \author{Vanessa Melikian}
-\affiliation{\institution{Reaper of Souls}}
+%\affiliation{\institution{Case Western Reserve University}}
 \email{vlm21@case.edu}
 
 \author{Maya Nayak}
-\affiliation{\institution{Tormentor of the Lost}}
+%\affiliation{\institution{Case Western Reserve University}}
 \email{mkn30@case.edu}
 
 \author{Jacob Wise}
-\affiliation{\institution{Annihilator of the Innocent}}
+%\affiliation{\institution{Case Western Reserve University}}
 \email{jsw107@case.edu}
-
-
-%\begin{abstract}
-%This is our abstract. Currently it is empty because no one has written it. In order to make it not empty, it must be written/
-%\end{abstract}
 
 \keywords{encryption, cipher, hash, entropy}
 
@@ -73,49 +68,50 @@
 % \renewcommand{\shortauthors}{G. Zhou et al.}
 
 \section{Abstract}
+Sensitive data, including things such as bank details, and personal information, must be continuously transferred amongst machines in order for society to function. In an attempt to fend off malicious users attempting to gain access to this data, digital information must be hidden. A common way to do this is through some type of encryption. Cryptography is a large field, with many different techniques. Each technique operates best given certain assumptions. In this paper, we aim to explain and implement the following cryptographic techniques: RSA, DES, and Vigenere Cipher. Each works best under different conditions; for instance, DES operates at the bit level, while Vigenere is at the character level. Through our tool, we can see at first glance that the information seems hidden. But, we will also explore the encryption cracking of Vigenere enciphered and MD-5 enciphered text. This illustrates that many cryptographic techniques have vulnerabilities that can be exploited by ill-intentioned users. 
 
-This is our abstract. Currently it is empty because no one has written it. In order to make it not empty, it must be written.
 
 \section{Introduction}\label{sec:intro}
 
 Modern communications require special methods to ensure the security of information in the presence of adversaries that want to intercept or maliciously modify communicated data. An adversary may try to compromise the confidentiality, or integrity of data, or they may bypass an authentication completely with a carefully-crafted message.
 
-Symmetric key ciphers
+This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigenere cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
 
-To begin, we ponder a quote from an anonymous philosopher.
-\begin{quote}
-  ``where's brian ''.
-\end{quote}
-What does it mean? Who said it? Why was it said? We may never know. But what we do know is the following:
+\subsection{Overview of Cryptography Algorithms}
+\subsubsection{DES}
+\hspace*{\fill} \\ % force newline
+Data Encryption Standard (DES) is another type of data encryption described as a symmetric-key block cipher. A symmetric key uses the same key to encrypt and decrypt a message, which means that both the sending and receiving side of the transaction must use the same private key. A block cipher takes in a string of bits and transforms it through bit-wise operations into a new string of bits with the same length. 
 
-This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigenère cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
+DES begins by taking in 2 64-bit inputs: a key and message. In general, all operations are done on the bit-level, using tables of predetermined size and content. The algorithm then permutes the input key according to a given table, PC-1. This results in a new 56-bit key. The new key is then split into two 28-bit halves, $C_{0}$ and $D_{0}$. Using these halves, we iterate 16 times to create 16 sets of blocks (n from 1 to 16). Every $C_{n}$ and  $D_{n}$ is computed by performing a set number of left shifts (either one or two) on $C_{n-1}$ and $D_{n-1}$.
+ The resulting pairs are concatenated into a 56-bit $C_{n}D_{n}$, and permuted with the table PC-2 to form 16 keys, $K_{n}$. At this point, we have the 16 subkeys (of size 48 bits) necessary. 
 
-% itemize
-\begin{itemize}
-\item To the best of our knowledge, this is not the first time something like this was developed
-\item We use \cite{Adya-01}, for a chocolate chip cookie recipe.
-\end{itemize}
+Moving to the encryption of the message itself, we begin by permuting it with the table IP. The resulting permutation is then split into 32-bit halves, $L_{0}$ and $R_{0}$. Over the course of 16 iterations, we create 16  sets of blocks using the Feistel function f:
+$L_{n} = R_{n-1}$
+$R_{n} = L_{n-1} \bigoplus f(R_{n-1}, K_{n})$ 
+	The Feistel function involves taking in a subkey $K_{n}$ and block $R_{n - 1}$. It permutes $R_{n - 1}$ using table E, and then XORs the result with $K_{n}$. It then takes the resulting block and permutes it using a series of 8 S-boxes. There is then a final permutation on the S-box output with table P. At the end of the iterations we are left with a concatenated block, $R_{16}L_{16}$. This block is finally permuted with a table $IP^{-1}$, and returned as the output of the DES algorithm. Note that encryption and decryption are almost exactly the same, except for the order in which the subkeys are applied. For encryption, the keys are applied $K_{1}$ to $K_{16}$ and for decryption they are applied $K_{16}$ to $K_{1}$.
 
-\subsection{Basic Crypto Stuff}
+While DES used to be heavily adopted, due to the small size of the key it has been found to be insecure by a brute force attack. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
 
-This is a talk about all the types of ciphers, symmetric, asymmetric, maybe more!
 
 \section{Tool Design} \label{sec:impl}
 \subsection{Algorithm Implementations} \label{sec:algorithms}
-
 \subsubsection{DES}
+\hspace*{\fill} \\ % force newline
+In order to produce the implementation of DES, we modularized the functionality of each component in DES while also allowing for our program to interface with a GUI. Each of the high level functions are explained below. 
 
-We show a high-level implementation of DES in Algorithm \ref{alg:des}. The DES algorithm has X main steps:
+Interfacing - Encipher / Decipher: These methods were used to interface with a GUI. Per our teams restrictions, we input a key and message in the form of a byte array. Since it was possible for the key and message to not be 64 bytes, we implemented a set of conditionals to pad our key or message. Then, we converted the byte arrays (GUI inputs) into integer values that could be used as input to our encryption function. We saved the result and converted it to a byte array as output to be displayed in the GUI. It is important to note that only one method is ideally needed for encipher and decipher, but because the interface implementation included a separate encipher and decipher, our code had to mimic the same structure. 
 
-\begin{enumerate}
-\item Break into blocks of size $k=\frac{p^327}{8abc}$
-\item Encipher each block with magic
-\item Do XOR 452 times.
-\end{enumerate}
+Permute Using Table: This method was used to implement a permutation on a table. Multiple permutations are undergone throughout DES; this function allows a user to specify on which table one is permuting given the table, block, and its length, while returning the result of that permutation. 
 
+Make Round Keys: Since DES requires 16 keys, this function takes each 28 bit half-key and first performs a left rotating function (a helper method we implemented to aid in the left shift of either 1 or 2 bits). We do this 16 times to produce 16 pairs of half-subkeys. These subkeys are populated into an array, in which each half is concatenated together. Our "permute using table" function is called to permute our 56 bit keys into table PC2, from which we return 16 48-bit subkeys.
 
+Round Function: The last job of DES encryption is to perform a feistel function. Our round function will perform one set of feistel operations given a singular key and block. The given 32-bit block is first permuted using an expansion table to yield a 48-bit block. We then XOR this 48-bit block with the 48-bit key to produce a new block, which is then split into 8 6-bit blocks. Using a loop, we enumerate over these blocks in order to permute them into an S-box (where each 6-bit block is converted to a 4-bit block). A final permutation is performed with a P-box using "permute using table". 
+
+Encryption: This method encapsulates all methods described above (outside of the interfacing methods). Encryption is called within the interfacing methods encipher/decipher. The encryption method first checks that the type of the key and message are integers and that they are at most 64 bits in length. We then permute the key using table PC1 and the key is split into two 28 bit halves. Then, "Make round key" is called to make our 16 subkeys (as described above), which yields 48-bit keys. Our block is then permuted using table IP. Our block message is then split into two 32 bit halves, after which we enumerate over all 16 subkeys and perform the feistel function. The cipher-blocks are then rejoined and permuted on table inverse IP. This results in our final ciphertext. 
+
+\subsubsection{RSA}
 % Algorithm
-\begin{algorithm}[t]
+\begin{algorithm}[tbh]
 \label{rsa_algo}
 \SetAlgoNoLine
 \KwIn{Public key exponent $e$, key size $s$}
@@ -138,8 +134,6 @@ $k_{priv} \longleftarrow e^{-1} \mod{\lambda}$
 \label{alg:rsa-keygen}
 \end{algorithm}
 
-\subsubsection{RSA}
-\hspace*{\fill} \\ % force newline
 Unlike DES and Vignere, RSA is an asymmetric cipher. Specifically, this means that the RSA cipher (i.e. public key) used to encrypt a message cannot be used to decrypt the the encrypted message whereas the cipher used to encrypt a message in DES and Vignere can be used to decrypt the encrypted message by reversing the encryption process.
 		
 To use RSA, a user first generates a key pair. The key pair contains a private key, public key, and a public key exponent. The public key and public key exponent can be made public so that other users can send the original user an encrypted message. The original user can use his/her private key to messages encrypted with the published public key and exponent. The main benefit that asymmetric encryption provides is that communicating entities can securely communicate without exchanging a decryption key/cipher.
@@ -207,9 +201,9 @@ Now that we have shown the correctness of RSA, we will now discuss the algorithm
 %Rivest, R.; Shamir, A.; Adleman, L. (February 1978). "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems" (PDF). Communications of the ACM. 21 (2): 120–126. doi:10.1145/359340.359342. 
 % The above citation is used for why the primes need to be a certain distance apart.
 
-\subsubsection{Vigenère Cipher}
+\subsubsection{Vigenere Cipher}
 \hspace*{\fill} \\ % force newline
-\textit{TODO: Vigenère Cipher Description}
+\textit{TODO: Vigenere Cipher Description}
 
 \subsection{SecuritySuiteGUI}\label{sec:gui}
 
@@ -240,7 +234,7 @@ If we use this in conjunction with a password length of $6$, this will try all p
 
 When trying to crack many passwords, the simple \texttt{brute-force attack} is usually an unrealistic attack method. The \texttt{mask attack} can use multiple charsets and string patterns to reduce the password candidate keyspace. 
 
-\section{Vigenère Cipher Cracker}\label{sec:vinegar}
+\section{Vigenere Cipher Cracker}\label{sec:vinegar}
 
 Words go here too!
 
@@ -277,7 +271,7 @@ Materials?
 
 \begin{acks}
 
-The authors would like to thank the mitochondria for being the powerhouse of the cell.
+The authors would like to thank Professor Xiao and the Case Western Reserve EECS Department.
 
 \end{acks}
 
