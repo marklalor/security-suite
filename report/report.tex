@@ -10,7 +10,7 @@
 \SetAlCapNameFnt{\small}
 \SetAlCapHSkip{0pt}
 \IncMargin{-\parindent}
-
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
 % Metadata Information
 %\acmJournal{PACMHCI}
 %\acmVolume{9}
@@ -88,7 +88,7 @@ To begin, we ponder a quote from an anonymous philosopher.
 \end{quote}
 What does it mean? Who said it? Why was it said? We may never know. But what we do know is the following:
 
-This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:impl}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigenère cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
+This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigenère cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
 
 % itemize
 \begin{itemize}
@@ -117,19 +117,35 @@ We show a high-level implementation of DES in Algorithm \ref{alg:des}. The DES a
 % Algorithm
 \begin{algorithm}[t]
 \SetAlgoNoLine
-\KwIn{Binary plaintext message $m$, a binary encryption key $k$}
-\KwOut{Binary ciphertext message $c$}
-$c$ = $m \times k$
-\Repeat{$\pi > -1$}{
-	$c = mc^2$
+\KwIn{Public key exponent $e$, key size $s$}
+\KwOut{Public key $k_{pub}$, and private key $k_{priv}$}
+
+\Repeat{$\gcd(e, \lambda) = 1 \land \|p - q\| \geq 2^{s / 2 - 100}$}{
+    $p \longleftarrow \text{probable-prime}(s / 2)$
+
+    $q \longleftarrow \text{probable-prime}(s / 2)$
+
+    $\lambda \longleftarrow \text{lcm}(p - 1, q - 1)$
 }
-\caption{FakeDES implementation}
-\label{alg:des}
+
+$k_{pub} \longleftarrow pq$
+
+$k_{priv} \longleftarrow e^{-1} \mod{\lambda}$
+
+\KwRet $k_{pub}$, $k_{priv}$
+\caption{RSA Keygen implementation}
+\label{alg:rsa-keygen}
 \end{algorithm}
 
 \subsubsection{RSA}
 \hspace*{\fill} \\ % force newline
 \textit{TODO: RSA Description}
+
+
+By Carmicheal's Theorem
+\begin{equation}
+	m^{2pq} \equiv 1 \Mod{pq}
+\end{equation}
 
 \subsubsection{Vigenère Cipher}
 \hspace*{\fill} \\ % force newline
@@ -139,7 +155,8 @@ $c$ = $m \times k$
 
 % Figure
 \begin{figure}
-  \includegraphics[scale=0.50]{demo}
+  \centering
+  \includegraphics[scale=0.40]{demo}
   \Description{Image of our demo tool}
   \caption{Image of the security suite demo tool.}
   \label{fig:one}
@@ -147,7 +164,21 @@ $c$ = $m \times k$
 
 \subsection{Hashcat Demo}\label{sec:hashcat}
 
-\textsc{Hashcat} is a software tool used to crack passwords, and can be used to leverage an available GPU for highly-parallelized general purpose computation. 
+\textsc{Hashcat} is a software tool used to crack passwords by leveraging the highly-parallelized general purpose computation capabilities of GPU \cite{Hashcat}. \textsc{Hashcat} will calculate hashes based on one of several attack modes, and the hashes are automatically checked against the hashes selected to be attacked.
+
+The most important option when using \textsc{Hashcat} is the \texttt{hash-type}, which specifies the actual hash algorithm that will be used for the attack. For example, you can choose a simple hash algorithm such as \texttt{"md5"}, or you may choose a composition of algorithms such as \texttt{"sha1(\$salt.sha1(\$pass))"}.
+
+Depending on the algorithm, \textsc{Hashcat} may or may not be able to leverage the GPU's capabilities effectively. Some algorithms, such as \texttt{bcrypt} are specifically designed to be difficult to parallelize in GPU hardware. Despite having thousands of cores to parallel computation, the algorithm is bottlenecked by the shared memory bus since the algorithm requires operating on a shared block of memory. Other algorithms, such as \texttt{MD5} are able to be run on the order of \textit{trillions} of time per second on modern hardware setups.
+
+The second required option is an \texttt{attack mode}. The simplest is a \texttt{brute-force attack}, which tries all possible combinations in a given keyspace. For example, a brute-force attack may be done on the following charset:
+
+\begin{center}
+\texttt{abcdefghijklmnopqrstuvwxyz0123456789}	
+\end{center}
+
+If we use this in conjunction with a password length of $6$, this will try all passwords composed of $6$ characters from that charset. For example, the password \texttt{k39a1j} will be discovered this way.
+
+When trying to crack many passwords, the simple \texttt{brute-force attack} is usually an unrealistic attack method. The \texttt{mask attack} can use multiple charsets and string patterns to reduce the password candidate keyspace. 
 
 \section{Vigenère Cipher Cracker}\label{sec:vinegar}
 
@@ -192,6 +223,6 @@ The authors would like to thank the mitochondria for being the powerhouse of the
 
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
-\bibliography{sample-bibliography}
+\bibliography{bibliography}
 
 \end{document}
