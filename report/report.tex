@@ -10,6 +10,7 @@
 \SetAlCapNameFnt{\small}
 \SetAlCapHSkip{0pt}
 \IncMargin{-\parindent}
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
 
 % Metadata Information
 %\acmJournal{PACMHCI}
@@ -85,7 +86,7 @@ Symmetric key ciphers
 To begin, we ponder a quote from an anonymous philosopher.
 \begin{quote}
   ``where's brian ''.
-\end{quote}
+\end{quote}}}
 What does it mean? Who said it? Why was it said? We may never know. But what we do know is the following:
 
 This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:impl}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigenère cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
@@ -129,7 +130,63 @@ $c$ = $m \times k$
 
 \subsubsection{RSA}
 \hspace*{\fill} \\ % force newline
-\textit{TODO: RSA Description}
+Unlike DES and Vignere, RSA is an asymmetric cipher. Specifically, this means that the RSA cipher (i.e. public key) used to encrypt a message cannot be used to decrypt the the encrypted message whereas the cipher used to encrypt a message in DES and Vignere can be used to decrypt the encrypted message by reversing the encryption process.
+		
+To use RSA, a user first generates a key pair. The key pair contains a private key, public key, and a public key exponent. The public key and public key exponent can be made public so that other users can send the original user an encrypted message. The original user can use his/her private key to messages encrypted with the published public key and exponent. The main benefit that asymmetric encryption provides is that communicating entities can securely communicate without exchanging a decryption key/cipher.
+
+The key mechanic in RSA comes from the following congruence:
+
+\begin{equation}
+\label{rsa_mechanic}
+	m^{ed} \equiv m \Mod{pq}
+\end{equation}
+
+When ed satisfies:
+
+\begin{equation}
+\label{ed_equiv}
+	ed \equiv 1 \Mod{\lambda(pq)}
+\end{equation}
+\begin{equation}
+\label{carmichael}
+	\lambda(pq) = lcm(p - 1, q - 1)
+\end{equation}
+
+To see why \ref{rsa_mechanic} is true, we will give a proof:
+\begin{equation}
+\begin{split}
+	m^{ed} 
+	\equiv m^{k\lambda(pq) + 1} \Mod{pq} \\
+	\equiv m * m^{k\lambda(pq)} \Mod{pq} \\
+	\equiv m * (m^{\lambda(pq)})^{k} \Mod{pq} \\
+	\equiv m * (1)^{k} \Mod{pq} \\
+	\equiv m
+\end{split}
+\end{equation}
+
+To get:
+\begin{equation}
+	m * (m^{\lambda(pq)})^{k} \Mod{pq} \equiv m * (1)^{k} \Mod{pq}
+\end{equation}
+
+We use the Carmichael theorem which gives us the congruence:
+\begin{equation}
+	a^{\lambda(n)} \equiv 1 \Mod{n}
+\end{equation}
+
+Using \ref{rsa_mechanic}, we can let e, d, and n be public key exponent, private key, and public key respectively. If m is the message, we can encrypt messages with the public key and public key exponent by:
+
+\begin{equation}
+	m^{e} \equiv c \Mod{n}
+\end{equation}
+
+Where c is the encrypted message. Then, we can decrypt messages with the public key and private key by:
+
+\begin{equation}
+	c^{d} \equiv (m^{e})^{d} \equiv m^{ed} \equiv m \Mod{n}
+\end{equation}
+
+Now that we have shown the correctness of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. 
 
 \subsubsection{Vigenère Cipher}
 \hspace*{\fill} \\ % force newline
