@@ -11,6 +11,7 @@
 \SetAlCapHSkip{0pt}
 \IncMargin{-\parindent}
 \newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+\usepackage{fancyvrb}
 % Metadata Information
 %\acmJournal{PACMHCI}
 %\acmVolume{9}
@@ -97,17 +98,26 @@ While DES used to be heavily adopted, due to the small size of the key it has be
 \subsection{Algorithm Implementations} \label{sec:algorithms}
 \subsubsection{DES}
 \hspace*{\fill} \\ % force newline
-In order to produce the implementation of DES, we modularized the functionality of each component in DES while also allowing for our program to interface with a GUI. Each of the high level functions are explained below. 
+Our DES algorithm is implemented in Python. In order to interact with the Java GUI program, we programmed to an interface so that the Java program may pass arguments as input to the DES program, and receive a raw binary result from \texttt{stdout} as output. An example of this usage can be seen in Figure \ref{fig:despython}. We modularized the functionality of each component in DES, which we describe in detail below.
 
-Interfacing - Encipher / Decipher: These methods were used to interface with a GUI. Per our teams restrictions, we input a key and message in the form of a byte array. Since it was possible for the key and message to not be 64 bytes, we implemented a set of conditionals to pad our key or message. Then, we converted the byte arrays (GUI inputs) into integer values that could be used as input to our encryption function. We saved the result and converted it to a byte array as output to be displayed in the GUI. It is important to note that only one method is ideally needed for encipher and decipher, but because the interface implementation included a separate encipher and decipher, our code had to mimic the same structure. 
+\begin{figure}
+\centering
+\begin{BVerbatim}
+python DES.py encipher 0102030405060708 0a0b0c0d0e0f0102 | xxd -p
+a4f010f4b040500f
+python DES.py decipher 0102030405060708 a4f010f4b040500f | xxd -p
+0a0b0c0d0e0f0102
+\end{BVerbatim}
+\caption{Example of how to interact with the Python DES program.}
+\label{fig:despython}
+\end{figure}
 
-Permute Using Table: This method was used to implement a permutation on a table. Multiple permutations are undergone throughout DES; this function allows a user to specify on which table one is permuting given the table, block, and its length, while returning the result of that permutation. 
-
-Make Round Keys: Since DES requires 16 keys, this function takes each 28 bit half-key and first performs a left rotating function (a helper method we implemented to aid in the left shift of either 1 or 2 bits). We do this 16 times to produce 16 pairs of half-subkeys. These subkeys are populated into an array, in which each half is concatenated together. Our "permute using table" function is called to permute our 56 bit keys into table PC2, from which we return 16 48-bit subkeys.
-
-Round Function: The last job of DES encryption is to perform a feistel function. Our round function will perform one set of feistel operations given a singular key and block. The given 32-bit block is first permuted using an expansion table to yield a 48-bit block. We then XOR this 48-bit block with the 48-bit key to produce a new block, which is then split into 8 6-bit blocks. Using a loop, we enumerate over these blocks in order to permute them into an S-box (where each 6-bit block is converted to a 4-bit block). A final permutation is performed with a P-box using "permute using table". 
-
-Encryption: This method encapsulates all methods described above (outside of the interfacing methods). Encryption is called within the interfacing methods encipher/decipher. The encryption method first checks that the type of the key and message are integers and that they are at most 64 bits in length. We then permute the key using table PC1 and the key is split into two 28 bit halves. Then, "Make round key" is called to make our 16 subkeys (as described above), which yields 48-bit keys. Our block is then permuted using table IP. Our block message is then split into two 32 bit halves, after which we enumerate over all 16 subkeys and perform the feistel function. The cipher-blocks are then rejoined and permuted on table inverse IP. This results in our final ciphertext. 
+\begin{itemize}
+	\item \texttt{Permute using table}: This method was used to implement a permutation on a table. Multiple permutations are undergone throughout DES; this function allows a user to specify on which table one is permuting given the table, block, and its length, while returning the result of that permutation.
+	\item \texttt{Make round keys}: Since DES requires 16 keys, this function takes each 28 bit half-key and first performs a left rotating function (a helper method we implemented to aid in the left shift of either 1 or 2 bits). We do this 16 times to produce 16 pairs of half-subkeys. These subkeys are populated into an array, in which each half is concatenated together. Our "permute using table" function is called to permute our 56 bit keys into table PC2, from which we return 16 48-bit subkeys.
+	\item \texttt{Round function}: The last job of DES encryption is to perform a feistel function. Our round function will perform one set of feistel operations given a singular key and block. The given 32-bit block is first permuted using an expansion table to yield a 48-bit block. We then XOR this 48-bit block with the 48-bit key to produce a new block, which is then split into 8 6-bit blocks. Using a loop, we enumerate over these blocks in order to permute them into an S-box (where each 6-bit block is converted to a 4-bit block). A final permutation is performed with a P-box using "permute using table". 
+	\item \texttt{Encryption}: This method encapsulates all methods described above (outside of the interfacing methods). Encryption is called within the interfacing methods encipher/decipher. The encryption method first checks that the type of the key and message are integers and that they are at most 64 bits in length. We then permute the key using table PC1 and the key is split into two 28 bit halves. Then, "Make round key" is called to make our 16 subkeys (as described above), which yields 48-bit keys. Our block is then permuted using table IP. Our block message is then split into two 32 bit halves, after which we enumerate over all 16 subkeys and perform the feistel function. The cipher-blocks are then rejoined and permuted on table inverse IP. This results in our final ciphertext. 
+\end{itemize}
 
 \subsubsection{RSA}
 % Algorithm
