@@ -119,7 +119,7 @@ python DES.py decipher 0102030405060708 a4f010f4b040500f | xxd -p
 	\item \texttt{Encryption}: This method encapsulates all methods described above (outside of the interfacing methods). Encryption is called within the interfacing methods encipher/decipher. The encryption method first checks that the type of the key and message are integers and that they are at most 64 bits in length. We then permute the key using table PC1 and the key is split into two 28 bit halves. Then, "Make round key" is called to make our 16 subkeys (as described above), which yields 48-bit keys. Our block is then permuted using table IP. Our block message is then split into two 32 bit halves, after which we enumerate over all 16 subkeys and perform the feistel function. The cipher-blocks are then rejoined and permuted on table inverse IP. This results in our final ciphertext. 
 \end{itemize}
 
-\subsubsection{RSA}
+\subsubsection{RSA}\label{sec:rsa}
 % Algorithm
 \begin{algorithm}[tbh]
 \label{rsa_algo}
@@ -198,19 +198,13 @@ Using \ref{rsa_mechanic}, we can let e, d, and n be the public key exponent, pri
 	m^{e} \equiv c \Mod{n}
 \end{equation}
 
-Where c is the encrypted message. To reverse the encryption, one would need to take the $e^{th}$ root of c (mod n) which is computationally difficult (citation needed). However, with the private key and our proof in \ref{rsa_proof}, we can decrypt c:
+Where c is the encrypted message. To reverse the encryption, there are two methods. The first method is to take the $e^{th}$ root of c (mod n) to obtain the original message. This is also known as the Discrete Log Problem. The second method is to factorize pq, the product of two large primes. By factorizing pq, it is possible to compute $\lambda(pq)$ and $e^{-1} \Mod{\lambda(pq)}$ to obtain the private key which can be used to decrypt c. The security of RSA depends on those two problems being computationally difficult to solve (which they currently are). Luckily, the original user already has the private key so he/she can decrypt c:
 
 \begin{equation}
 	c^{d} \equiv (m^{e})^{d} \equiv m^{ed} \equiv m \Mod{n}
 \end{equation}
 
-Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{rsa_algo} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, Miller-Rabin is used to probabilistically check the primality of the generated numbers (citation needed). The more rounds of Miller-Rabin a number passes, the more likely the number is prime (citation needed). In Java's BigInteger class, the probablePrime() function returns a number with probability $1 - 2^-100$ that the generated number is prime (citation needed). After generating two probable prime numbers, p and q, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that p and q are at least a few magnitudes apart to make factorizing pq more difficult (citation needed). Finally, we return pq as the public key, e as the public key exponent, and $e^{-1} \Mod{pq}$ as the private key.
-
-%RSA Citations:
-%https://docs.oracle.com/javase/7/docs/api/java/math/BigInteger.html#probablePrime(int,%20java.util.Random)
-%http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/tip/src/share/classes/java/math/BigInteger.java
-%Rivest, R.; Shamir, A.; Adleman, L. (February 1978). "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems" (PDF). Communications of the ACM. 21 (2): 120–126. doi:10.1145/359340.359342. 
-% The above citation is used for why the primes need to be a certain distance apart.
+Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{rsa_algo} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, multiple rounds of Miller-Rabin are used to probabilistically check the primality of the generated numbers \cite{MillerRabin}. In Java's BigInteger class, the probablePrime() function returns a number with probability $1 - 2^-100$ that the generated number is prime \cite{BigIntegerDoc}. After generating two probable prime numbers, p and q, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that p and q are at least a few magnitudes apart to make factorizing pq more difficult \cite{FactoringProductOfTwoPrimes}. Finally, we return pq as the public key, e as the public key exponent, and $e^{-1} \Mod{\lambda(pq)}$ as the private key.
 
 \subsubsection{Vigenere Cipher}
 \hspace*{\fill} \\ % force newline
