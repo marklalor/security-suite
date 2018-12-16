@@ -227,7 +227,7 @@ Now that we have shown the correctness and mechanic of RSA, we will now discuss 
   \label{fig:one}
 \end{figure}
 
-\subsection{Hashcat Demo}\label{sec:hashcat}
+\subsection{Hashcat}\label{sec:hashcat}
 
 \textsc{Hashcat} is a software tool used to crack passwords by leveraging the highly-parallelized general purpose computation capabilities of GPU \cite{Hashcat}. \textsc{Hashcat} will calculate hashes based on one of several attack modes, and the hashes are automatically checked against the hashes selected to be attacked.
 
@@ -243,7 +243,32 @@ The second required option is an \texttt{attack mode}. The simplest is a \texttt
 
 If we use this in conjunction with a password length of $6$, this will try all passwords composed of $6$ characters from that charset. For example, the password \texttt{k39a1j} will be discovered this way.
 
-When trying to crack many passwords, the simple \texttt{brute-force attack} is usually an unrealistic attack method. The \texttt{mask attack} can use multiple charsets and string patterns to reduce the password candidate keyspace. 
+When trying to crack many passwords, the simple \texttt{brute-force attack} is usually an unrealistic attack method. The \texttt{mask attack} can use multiple charsets and string patterns to reduce the password candidate keyspace.
+
+Hashcat offers many pre-specified charsets to make composing mask attacks easier:
+
+\begin{center}
+\begin{minipage}{8cm}
+\begin{verbatim}
+?l = abcdefghijklmnopqrstuvwxyz
+?u = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+?d = 0123456789
+?h = 0123456789abcdef
+?H = 0123456789ABCDEF
+?s = «space»!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+\end{verbatim}
+\end{minipage}
+\end{center}
+
+For example, it is very common for users to choose passwords that are comprised of lowercase letters followed by numbers. The mask \texttt{?l?l?l?l?d?d} specifies all possible combinations of 4 lowercase letters followed by 2 digits, reducing the search space to $26^410^2$ passwords. A password in this sense would have about 25 bits of entropy (log of the total number of possible passwords).
+
+We can try to build upon knowledge we have about the source of the hash to choose an effective keyspace for an attack. For example, if we know that the website we are trying to attack requires at least one non-alphanumeric symbol in their passwords, then we we would only ever try masks containing at least one \texttt{?s} charset, such as \texttt{?l?l?l?l?s}
+
+Many of these assumptions are based on the idea of a very general, human target. But what if we are only concerned with cracking one single password hash belonging to one individual? In this case, we can try to leverage more information for a targeted attack.
+
+An example of this would be if we knew our target had children, and figured they may use their children's names in their passwords. We can use the \texttt{hybrid attack} mode to combine a dictionary with a mask, for example if our dictionary is \verb|{jim,jane,jack}|, and we use the mask \texttt{?d?d?d}, then we can try all the passwords of the form \texttt{[name][d][d][d]} such as \texttt{jim123}, \texttt{jane032}, and so on. This variation would have a search space to $3^110^3$ passwords (about 12 bits of entropy).
+
+An interesting limitation of many of these methods is the GPU computing platform itself. For example, with a dictionary attack, Hashcat can only combine two dictionaries, not three. When doing an attack by combining 3 dictionary words, the CPU must be used, which then becomes the bottleneck. Candidate passwords can be piped from stdout of the separate CPU-powered program into stdin of Hashcat.
 
 \section{Vigenere Cipher Cracker}\label{sec:vinegar}
 
