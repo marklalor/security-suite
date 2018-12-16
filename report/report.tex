@@ -140,7 +140,7 @@ $k_{pub} \longleftarrow pq$
 $k_{priv} \longleftarrow e^{-1} \mod{\lambda}$
 
 \KwRet $k_{pub}$, $k_{priv}$
-\caption{RSA Keygen implementation}
+\caption{RSA Keygen Pseudocode \cite{RSA}}
 \label{alg:rsa-keygen}
 \end{algorithm}
 
@@ -204,7 +204,7 @@ Where c is the encrypted message. To reverse the encryption, there are two metho
 	c^{d} \equiv (m^{e})^{d} \equiv m^{ed} \equiv m \Mod{n}
 \end{equation}
 
-Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{rsa_algo} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, multiple rounds of Miller-Rabin are used to probabilistically check the primality of the generated numbers \cite{MillerRabin}. In Java's BigInteger class, the probablePrime() function returns a number with probability $1 - 2^-100$ that the generated number is prime \cite{BigIntegerDoc}. After generating two probable prime numbers, p and q, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that p and q are at least a few magnitudes apart to make factorizing pq more difficult \cite{FactoringProductOfTwoPrimes}. Finally, we return pq as the public key, e as the public key exponent, and $e^{-1} \Mod{\lambda(pq)}$ as the private key.
+Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{rsa_algo} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, multiple rounds of Miller-Rabin are used to probabilistically check the primality of the generated numbers \cite{MillerRabin}. In Java's BigInteger class, the probablePrime() function returns a number with probability $1 - 2^-100$ that the generated number is prime \cite{BigIntegerDoc}. After generating two probable prime numbers, p and q, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that p and q are at least a few magnitudes apart to make factorizing pq more difficult \cite{RSA}. Finally, we return pq as the public key, e as the public key exponent, and $e^{-1} \Mod{\lambda(pq)}$ as the private key.
 
 \subsubsection{Vigenere Cipher}
 \hspace*{\fill} \\ % force newline
