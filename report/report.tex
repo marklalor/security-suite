@@ -223,6 +223,12 @@ It is also worth noting that there exists a hard limit on the length of a messag
   \label{fig:one}
 \end{figure}
 
+The GUI (seen in Figure \ref{fig:one}) offers an interface for using all of the algorithms described in the previous sections. For the Vigenere cipher, the algorithm operates on characters in an alphabet, so the key and text are both interpreted as such. However the rest of the algorithms operate at a binary level, so everything is interpreted/displayed as hexadecimal (the actual encodings used in practice for the messages are not important for using the algorithms).
+
+Each row corresponds to one algorithm function, all algorithms have inputs on the left and then an output on the right, except for RSA keygen, which has no inputs and 3 outputs which compose a keypair.
+
+The GUI delegates to the implementations, by interpreting the text, and transforming between byte arrays and hexadecimal string encoding where appropriate. For DES, the program invokes python as a separate process using the API specified in the DES section.
+
 \subsection{Hashcat}\label{sec:hashcat}
 
 \textsc{Hashcat} is a software tool used to crack passwords by leveraging the highly-parallelized general purpose computation capabilities of GPU \cite{Hashcat}. \textsc{Hashcat} will calculate hashes based on one of several attack modes, and the hashes are automatically checked against the hashes selected to be attacked.
