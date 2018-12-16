@@ -93,57 +93,8 @@ $R_{n} = L_{n-1} \bigoplus f(R_{n-1}, K_{n})$
 
 While DES used to be heavily adopted, due to the small size of the key it has been found to be insecure by a brute force attack. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
 
-
-\section{Tool Design} \label{sec:impl}
-\subsection{Algorithm Implementations} \label{sec:algorithms}
-\subsubsection{DES}
+\subsubsection{RSA}
 \hspace*{\fill} \\ % force newline
-Our DES algorithm is implemented in Python. In order to interact with the Java GUI program, we programmed to an interface so that the Java program may pass arguments as input to the DES program, and receive a raw binary result from \texttt{stdout} as output. An example of this usage can be seen in Figure \ref{fig:despython}. We modularized the functionality of each component in DES, which we describe in detail below.
-
-\begin{figure}
-\centering
-\begin{BVerbatim}
-python DES.py encipher 0102030405060708 0a0b0c0d0e0f0102 | xxd -p
-a4f010f4b040500f
-python DES.py decipher 0102030405060708 a4f010f4b040500f | xxd -p
-0a0b0c0d0e0f0102
-\end{BVerbatim}
-\caption{Example of how to interact with the Python DES program.}
-\label{fig:despython}
-\end{figure}
-
-\begin{itemize}
-	\item \texttt{Permute using table}: This method was used to implement a permutation on a table. Multiple permutations are undergone throughout DES; this function allows a user to specify on which table one is permuting given the table, block, and its length, while returning the result of that permutation.
-	\item \texttt{Make round keys}: Since DES requires 16 keys, this function takes each 28 bit half-key and first performs a left rotating function (a helper method we implemented to aid in the left shift of either 1 or 2 bits). We do this 16 times to produce 16 pairs of half-subkeys. These subkeys are populated into an array, in which each half is concatenated together. Our "permute using table" function is called to permute our 56 bit keys into table PC2, from which we return 16 48-bit subkeys.
-	\item \texttt{Round function}: The last job of DES encryption is to perform a feistel function. Our round function will perform one set of feistel operations given a singular key and block. The given 32-bit block is first permuted using an expansion table to yield a 48-bit block. We then XOR this 48-bit block with the 48-bit key to produce a new block, which is then split into 8 6-bit blocks. Using a loop, we enumerate over these blocks in order to permute them into an S-box (where each 6-bit block is converted to a 4-bit block). A final permutation is performed with a P-box using "permute using table". 
-	\item \texttt{Encryption}: This method encapsulates all methods described above (outside of the interfacing methods). Encryption is called within the interfacing methods encipher/decipher. The encryption method first checks that the type of the key and message are integers and that they are at most 64 bits in length. We then permute the key using table PC1 and the key is split into two 28 bit halves. Then, "Make round key" is called to make our 16 subkeys (as described above), which yields 48-bit keys. Our block is then permuted using table IP. Our block message is then split into two 32 bit halves, after which we enumerate over all 16 subkeys and perform the feistel function. The cipher-blocks are then rejoined and permuted on table inverse IP. This results in our final ciphertext. 
-\end{itemize}
-
-\subsubsection{RSA}\label{sec:rsa}
-% Algorithm
-\begin{algorithm}[tbh]
-\label{rsa_algo}
-\SetAlgoNoLine
-\KwIn{Public key exponent $e$, key size $s$}
-\KwOut{Public key $k_{pub}$, and private key $k_{priv}$}
-
-\Repeat{$\gcd(e, \lambda) = 1 \land \|p - q\| \geq 2^{s / 2 - 100}$}{
-    $p \longleftarrow \text{probable-prime}(s / 2)$
-
-    $q \longleftarrow \text{probable-prime}(s / 2)$
-
-    $\lambda \longleftarrow \text{lcm}(p - 1, q - 1)$
-}
-
-$k_{pub} \longleftarrow pq$
-
-$k_{priv} \longleftarrow e^{-1} \mod{\lambda}$
-
-\KwRet $k_{pub}$, $k_{priv}$
-\caption{RSA Keygen Pseudocode \cite{RSA}}
-\label{alg:rsa-keygen}
-\end{algorithm}
-
 Unlike DES and Vignere, RSA is an asymmetric cipher. Specifically, this means that the RSA cipher (i.e. public key) used to encrypt a message cannot be used to decrypt the the encrypted message whereas the cipher used to encrypt a message in DES and Vignere can be used to decrypt the encrypted message by reversing the encryption process.
 		
 To use RSA, a user first generates a key pair. The key pair contains a private key, public key, and a public key exponent. The public key and public key exponent can be made public so that other users can send the original user an encrypted message. The original user can use his/her private key to decrypt messages encrypted with the published public key and exponent. The main benefit that asymmetric encryption provides is that communicating entities can securely communicate without exchanging a decryption key/cipher.
@@ -206,7 +157,59 @@ Where c is the encrypted message. To reverse the encryption, there are two metho
 
 Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{rsa_algo} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, multiple rounds of Miller-Rabin are used to probabilistically check the primality of the generated numbers \cite{MillerRabin}. In Java's BigInteger class, the probablePrime() function returns a number with probability $1 - 2^-100$ that the generated number is prime \cite{BigIntegerDoc}. After generating two probable prime numbers, p and q, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that p and q are at least a few magnitudes apart to make factorizing pq more difficult \cite{RSA}. Finally, we return pq as the public key, e as the public key exponent, and $e^{-1} \Mod{\lambda(pq)}$ as the private key.
 
-It is also worth noting that there exists a hard limit on the length of a message that can be encrypted using RSA. Because the algorithm uses the modulus function, we must ensure the length of the message is less than or equal to the length of the key (i.e. the modulus), else the wrong value will be produced. To support messages of longer length, we utlized a "chunking" method that splits the full input message into several sections of appropriate length. Each section is then encrypted and decrypted independently using the algorithms described above, and the results are further appended together for the final output. Each chunk must be guaranteed to be smaller than the length of the key to ensure the correct operation of RSA.
+\section{Tool Design} \label{sec:impl}
+\subsection{Algorithm Implementations} \label{sec:algorithms}
+\subsubsection{DES}
+\hspace*{\fill} \\ % force newline
+Our DES algorithm is implemented in Python. In order to interact with the Java GUI program, we programmed to an interface so that the Java program may pass arguments as input to the DES program, and receive a raw binary result from \texttt{stdout} as output. An example of this usage can be seen in Figure \ref{fig:despython}. We modularized the functionality of each component in DES, which we describe in detail below.
+
+\begin{figure}
+\centering
+\begin{BVerbatim}
+python DES.py encipher 0102030405060708 0a0b0c0d0e0f0102 | xxd -p
+a4f010f4b040500f
+python DES.py decipher 0102030405060708 a4f010f4b040500f | xxd -p
+0a0b0c0d0e0f0102
+\end{BVerbatim}
+\caption{Example of how to interact with the Python DES program.}
+\label{fig:despython}
+\end{figure}
+
+\begin{itemize}
+	\item \texttt{Permute using table}: This method was used to implement a permutation on a table. Multiple permutations are undergone throughout DES; this function allows a user to specify on which table one is permuting given the table, block, and its length, while returning the result of that permutation.
+	\item \texttt{Make round keys}: Since DES requires 16 keys, this function takes each 28 bit half-key and first performs a left rotating function (a helper method we implemented to aid in the left shift of either 1 or 2 bits). We do this 16 times to produce 16 pairs of half-subkeys. These subkeys are populated into an array, in which each half is concatenated together. Our "permute using table" function is called to permute our 56 bit keys into table PC2, from which we return 16 48-bit subkeys.
+	\item \texttt{Round function}: The last job of DES encryption is to perform a feistel function. Our round function will perform one set of feistel operations given a singular key and block. The given 32-bit block is first permuted using an expansion table to yield a 48-bit block. We then XOR this 48-bit block with the 48-bit key to produce a new block, which is then split into 8 6-bit blocks. Using a loop, we enumerate over these blocks in order to permute them into an S-box (where each 6-bit block is converted to a 4-bit block). A final permutation is performed with a P-box using "permute using table". 
+	\item \texttt{Encryption}: This method encapsulates all methods described above (outside of the interfacing methods). Encryption is called within the interfacing methods encipher/decipher. The encryption method first checks that the type of the key and message are integers and that they are at most 64 bits in length. We then permute the key using table PC1 and the key is split into two 28 bit halves. Then, "Make round key" is called to make our 16 subkeys (as described above), which yields 48-bit keys. Our block is then permuted using table IP. Our block message is then split into two 32 bit halves, after which we enumerate over all 16 subkeys and perform the feistel function. The cipher-blocks are then rejoined and permuted on table inverse IP. This results in our final ciphertext. 
+\end{itemize}
+
+\subsubsection{RSA}\label{sec:rsa}
+% Algorithm
+\begin{algorithm}[tbh]
+\label{rsa_algo}
+\SetAlgoNoLine
+\KwIn{Public key exponent $e$, key size $s$}
+\KwOut{Public key $k_{pub}$, and private key $k_{priv}$}
+
+\Repeat{$\gcd(e, \lambda) = 1 \land \|p - q\| \geq 2^{s / 2 - 100}$}{
+    $p \longleftarrow \text{probable-prime}(s / 2)$
+
+    $q \longleftarrow \text{probable-prime}(s / 2)$
+
+    $\lambda \longleftarrow \text{lcm}(p - 1, q - 1)$
+}
+
+$k_{pub} \longleftarrow pq$
+
+$k_{priv} \longleftarrow e^{-1} \mod{\lambda}$
+
+\KwRet $k_{pub}$, $k_{priv}$
+\caption{RSA Keygen Pseudocode \cite{RSA}}
+\label{alg:rsa-keygen}
+\end{algorithm}
+
+In our RSA implementation, we implemented three main stub methods: generateKeyPair(), encrypt(), and decrypt(). In generateKeyPair(), the function took in a keyLength in terms of bits as input and returned a KeyPair object as output. The KeyPair object contained instance fields: public key, public key exponent, and private key. We then used the generated KeyPair to encrypt and decrypt messages. In encrypt(), the function took in a message, a public key, and a public key exponent as input and returned an encrypted message as output. In decrypt(), the function took in an encrypted message, a public key, and a private key as input and returned the decrypted version of the encrypted message.
+
+In addition to implementing the aforementioned stub methods, we also added functionality for chunking long messages. Because RSA uses the modulus function, we must ensure the length of the message is less than or equal to the length of the key (i.e. the modulus), else the wrong value would be returned after encryption or decryption. To support messages of longer length, we chunked the original input message into several sections of appropriate length before running encrypt() or decrypt(). Each chunk was then encrypted or decrypted independently using the encrypt() or decrypt() methods respectively. Finally, the encrypted or decrypted chunks were appended back together for the final output.
 
 \subsubsection{Vigenere Cipher}
 \hspace*{\fill} \\ % force newline
