@@ -93,6 +93,24 @@ $R_{n} = L_{n-1} \bigoplus f(R_{n-1}, K_{n})$
 
 While DES used to be heavily adopted, due to the small size of the key it has been found to be insecure by a brute force attack. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
 
+\subsubsection{Vigenere Cipher}
+The Vigenere Cipher is a polyalphabetic cipher which builds on the Caesar Cipher, which shifts all letters in a text by one consistent letter value. The Vigenere Cipher also shifts all letters in a text but uses a phrase cyclically, rather than one letter. Letters have values A = 0, B = 1, ..., Z = 25, and similar to the Caesar Cipher, the letter value from the text and key are added together, mod 26 to get the encoded text. An example of how to encode text using a key can be seen in Figure 1.
+
+\begin{figure}
+\centering
+\begin{BVerbatim}
+H E L L O W O R L D
+L I M E L I M E L I
+(H+L) (E+I) (L+M) (L+E) (O+L) (W+I) (O+M) (R+E) (L+L) (D+I)
+(7+11) (4+8) (11+12) (11+4) (14+11) (22+8) (14+12) (17+4) (11+11) (3+8)
+18 12 23 15 25 30 26 21 22 11
+18 12 23 15 25 4 0 21 22 11 (above line values mod 26)
+S M X P Z E A V W L
+\end{BVerbatim}
+\caption{Example of how to encode "HELLOWORLD" with key "LIME" using a Vigenere Cipher.}
+\label{fig:despython}
+\end{figure}
+
 
 \section{Tool Design} \label{sec:impl}
 \subsection{Algorithm Implementations} \label{sec:algorithms}
