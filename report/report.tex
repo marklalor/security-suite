@@ -210,7 +210,7 @@ It is also worth noting that there exists a hard limit on the length of a messag
 
 \subsubsection{Vigenere Cipher}
 \hspace*{\fill} \\ % force newline
-\textit{TODO: Vigenere Cipher Description}
+We wrote two methods in Java for the Vigenere Cipher, an encoding and decoding method. Both methods take two Strings, the text to be encoded or decoded and the key. In both methods, the text and key are converted to uppercase letters and then split into a character array. Then the methods iterate over every character in the text character array and finds the key character the iteration is currently at (starting at zero). If encoding, the two characters are summed, mod 26, and then converted to a character. If decoding, the key value is subtracted from the text character, add 26 to the difference, mod 26, then converted to a character. After each iteration, the key character is advanced to the next character (or wrapped to the first character if at the end of the key).
 
 \subsection{SecuritySuiteGUI}\label{sec:gui}
 
