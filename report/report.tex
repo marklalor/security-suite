@@ -296,7 +296,19 @@ An interesting limitation of many of these methods is the GPU computing platform
 
 \section{Vigenere Cipher Cracker}\label{sec:vinegar}
 
-Words go here too!
+We wrote a Vigenere Cipher Cracker using a Ruby script that breaks down the steps needed to find the key for an encoded text. We encoded the first sentence of "A Tale of Two Cities" and used the following steps to determine that "LEMON" was the key used to encode the text.
+
+The first step is to remove all non-letters form the text (such as spaces, punctuation, etc.) and make the text the same case, we chose uppercase.
+
+Then we needed to find the letter position offsets between repeated substrings within the text. We used substrings of size 3 and iterated through the text, finding repeated instances of the substring. Then we subtracted the positions of the beginning letters of the substring occurances to find the offset and printed them out. The offsets can be used to find the likely length of the key.
+
+We then prompted the user to input their guess for the length of the key. A likely length would be a common factor amongst all or most of the offsets. In our case, a common factor is 5, therefore 5 should be a good guess.
+
+Using the inputted length from the user, we divided the text into chunks of that length and printed out the chunks. For example, if the text was "ABCDEFGHIJK", and the length was 5, "ABCDE FGHIJ K" was printed.
+
+Then we counted the number of times each letter occurred in each position in the 5 letter chunk. Due to 'E' being the most common letter in the English language, we can subtract 'E' from each letter to get the most likely letters in the key. We printed out the top 3 likely letters for each letter position for the key.
+
+Then we found all combinations of letters in each position that could be a possible key and printed them out (243 possible keys). We then decyphered the text using each of the 243 keys and compared the letter frequency of the decyphered text to the actual letter frequency of the English language to find the correlation frequency. After going through each key, we printed out the top 10 correlation frequencies and the keys that corresponded to them. It is very likely the correct key is the one with one of the highest correlation frequencies. In our case, the highest correlation frequency was "LEMON", which was also the correct key.
 
 \section{Results}\label{sec:results}
 
