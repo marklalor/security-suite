@@ -69,14 +69,14 @@
 % \renewcommand{\shortauthors}{G. Zhou et al.}
 
 \section{Abstract}
-Sensitive data such as bank details, and personal information is continuously exchanged over the Internet. In an attempt to fend off malicious users attempting to gain access to this data, digital information must be made hidden. A common way to do this is through encryption. In particular, cryptography offers many techniques to encrypt data. Each technique faces tradeoffs and operates best given certain assumptions. In this paper, we aim to explain and implement the following cryptographic techniques: RSA, DES, and Vigenere Cipher. In addition to explanations and implementations of these encryption techniques, we will also present tools that crack the Vignere and MD5 hash algorithm. With these tools, we hope to illustrate that some cryptographic techniques have vulnerabilities that can be exploited by ill-intentioned users.
+Sensitive data such as bank details, and personal information is continuously exchanged over the Internet. In an attempt to fend off malicious users attempting to gain access to this data, digital information must be made hidden. A common way to do this is through encryption. In particular, cryptography offers many techniques to encrypt data. Each technique faces tradeoffs and operates best given certain assumptions. In this paper, we aim to explain and implement the following cryptographic techniques: RSA, DES, and Vigen\`{e}re Cipher. In addition to explanations and implementations of these encryption techniques, we will also present tools that crack the Vignere and MD5 hash algorithm. With these tools, we hope to illustrate that some cryptographic techniques have vulnerabilities that can be exploited by ill-intentioned users.
 
 
 \section{Introduction}\label{sec:intro}
 
 Modern communications require special methods to ensure the confidentiality of information in the presence of adversaries that want to intercept or maliciously modify communicated data. An adversary may try to compromise the confidentiality of data or bypass an authentication altogether with a carefully-crafted message.
 
-This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigenere cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
+This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with a hashcat demo in Section [\ref{sec:hashcat}]. Finally, we demonstrate how the Vigen\`{e}re cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. We evaluate our methods in Section [\ref{sec:evaluation}], and then discuss our techniques, challenges, and other thoughts in Section [\ref{sec:discussion}]. Finally, we discuss our final conclusions in Section [\ref{sec:conclusions}].
 
 \subsection{Overview of Cryptography Algorithms}
 \subsubsection{DES}
@@ -106,7 +106,7 @@ The key mechanic in RSA comes from the following congruence:
 	m^{ed} \equiv m \Mod{pq}
 \end{equation}
 
-When ed satisfies:
+When $ed$ satisfies:
 
 \begin{equation}
 \label{ed_equiv}
@@ -123,16 +123,16 @@ To see why \ref{rsa_mechanic} is true, we will give a proof:
 \begin{split}
 	m^{ed} 
 	\equiv m^{k\lambda(pq) + 1} \Mod{pq} \\
-	\equiv m * m^{k\lambda(pq)} \Mod{pq} \\
-	\equiv m * (m^{\lambda(pq)})^{k} \Mod{pq} \\
-	\equiv m * (1)^{k} \Mod{pq} \\
+	\equiv m \times m^{k\lambda(pq)} \Mod{pq} \\
+	\equiv m \times (m^{\lambda(pq)})^{k} \Mod{pq} \\
+	\equiv m \times (1)^{k} \Mod{pq} \\
 	\equiv m
 \end{split}
 \end{equation}
 
 To get:
 \begin{equation}
-	m * (m^{\lambda(pq)})^{k} \Mod{pq} \equiv m * (1)^{k} \Mod{pq}
+	m \times (m^{\lambda(pq)})^{k} \Mod{pq} \equiv m \times (1)^{k} \Mod{pq}
 \end{equation}
 
 We use the Carmichael function ($\lambda$) which gives us the congruence:
@@ -141,7 +141,7 @@ We use the Carmichael function ($\lambda$) which gives us the congruence:
 	a^{\lambda(n)} \equiv 1 \Mod{n}
 \end{equation}
 
-When a and n are co-prime i.e. gcd(a, n) = 1
+When $a$ and $n$ are co-prime i.e. $\gcd(a, n) = 1$
 
 Using \ref{rsa_mechanic}, we can let e, d, and n be the public key exponent, private key, and public key respectively. If m is the message, we can encrypt messages with the public key and public key exponent by:
 
@@ -149,17 +149,17 @@ Using \ref{rsa_mechanic}, we can let e, d, and n be the public key exponent, pri
 	m^{e} \equiv c \Mod{n}
 \end{equation}
 
-Where c is the encrypted message. To reverse the encryption, there are two methods. The first method is to take the $e^{th}$ root of c (mod n) to obtain the original message. This is also known as the Discrete Log Problem. The second method is to factorize pq, the product of two large primes. By factorizing pq, it is possible to compute $\lambda(pq)$ and $e^{-1} \Mod{\lambda(pq)}$ to obtain the private key which can be used to decrypt c. The security of RSA depends on those two problems being computationally difficult to solve (which they currently are). Luckily, the original user already has the private key so he/she can decrypt c:
+Where $c$ is the encrypted message. To reverse the encryption, there are two methods. The first method is to take the $e^{th}$ root of $c \Mod{n}$ to obtain the original message. This is also known as the Discrete Log Problem. The second method is to factorize $pq$, the product of two large primes. By factorizing $pq$, it is possible to compute $\lambda(pq)$ and $e^{-1} \Mod{\lambda(pq)}$ to obtain the private key which can be used to decrypt c. The security of RSA depends on those two problems being computationally difficult to solve (which they currently are thought to be). Luckily, the original user already has the private key so he/she can decrypt $c$:
 
 \begin{equation}
 	c^{d} \equiv (m^{e})^{d} \equiv m^{ed} \equiv m \Mod{n}
 \end{equation}
 
-Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{rsa_algo} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, multiple rounds of Miller-Rabin are used to probabilistically check the primality of the generated numbers \cite{MillerRabin}. In Java's BigInteger class, the probablePrime() function returns a number with probability $1 - 2^-100$ that the generated number is prime \cite{BigIntegerDoc}. After generating two probable prime numbers, p and q, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that p and q are at least a few magnitudes apart to make factorizing pq more difficult \cite{RSA}. Finally, we return pq as the public key, e as the public key exponent, and $e^{-1} \Mod{\lambda(pq)}$ as the private key.
+Now that we have shown the correctness and mechanic of RSA, we will now discuss the algorithm to generate a key pair consisting of a public key exponent, public key, and private key. Algorithm \ref{alg:rsa-keygen} gives pseudocode for generating an RSA key pair. In the algorithm, two large, random numbers are generated. Since it is computationally expensive and impractical to check if the generated numbers are prime with certainty, multiple rounds of Miller-Rabin are used to probabilistically check the primality of the generated numbers \cite{MillerRabin}. In Java's \texttt{BigInteger} class, the \texttt{probablePrime()} function returns a number with probability $1 - 2^{-100}$ that the generated number is prime \cite{BigIntegerDoc}. After generating two probable prime numbers, $p$ and $q$, we make two checks. First, we check that e and $\lambda$ are co-prime so that we can use the Carmichael function congruence shown in \ref{carmichael_fun}. Second, we check that $p$ and $q$ are at least a few magnitudes apart to make factorizing $pq$ more difficult \cite{RSA}. Finally, we return $pq$ as the public key, $e$ as the public key exponent, and $e^{-1} \Mod{\lambda(pq)}$ as the private key.
 
-\subsubsection{Vigenere Cipher}
+\subsubsection{Vigen\`{e}re Cipher}
 \hspace*{\fill} \\ % force newline
-The Vigenere Cipher is a polyalphabetic cipher which builds on the Caesar Cipher, which shifts all letters in a text by one consistent letter value. The Vigenere Cipher also shifts all letters in a text but uses a phrase cyclically, rather than one letter. Letters have values A = 0, B = 1, ..., Z = 25, and similar to the Caesar Cipher, the letter value from the text and key are added together, mod 26 to get the encoded text. An example of how to encode text using a key can be seen in Figure 1.
+The Vigen\`{e}re Cipher is a polyalphabetic cipher which builds on the Caesar Cipher, which shifts all letters in a text by one consistent letter value. The Vigen\`{e}re Cipher also shifts all letters in a text but uses a phrase cyclically, rather than one letter. Letters have values A = 0, B = 1, ..., Z = 25, and similar to the Caesar Cipher, the letter value from the text and key are added together, mod 26 to get the encoded text. An example of how to encode text using a key can be seen in Figure 1.
 
 \begin{figure}
 \centering
@@ -172,7 +172,7 @@ L I M E L I M E L I
 18 12 23 15 25 4 0 21 22 11 (above line values mod 26)
 S M X P Z E A V W L
 \end{BVerbatim}
-\caption{Example of how to encode "HELLOWORLD" with key "LIME" using a Vigenere Cipher.}
+\caption{Example of how to encode "HELLOWORLD" with key "LIME" using a Vigen\`{e}re Cipher.}
 \label{fig:despython}
 \end{figure}
 
@@ -204,7 +204,6 @@ python DES.py decipher 0102030405060708 a4f010f4b040500f | xxd -p
 \subsubsection{RSA}\label{sec:rsa}
 % Algorithm
 \begin{algorithm}[tbh]
-\label{rsa_algo}
 \SetAlgoNoLine
 \KwIn{Public key exponent $e$, key size $s$}
 \KwOut{Public key $k_{pub}$, and private key $k_{priv}$}
@@ -230,9 +229,9 @@ In our RSA implementation, we implemented three main stub methods: generateKeyPa
 
 In addition to implementing the aforementioned stub methods, we also added functionality for chunking long messages. Because RSA uses the modulus function, we must ensure the length of the message is less than or equal to the length of the key (i.e. the modulus), else the wrong value would be returned after encryption or decryption. To support messages of longer length, we chunked the original input message into several sections of appropriate length before running encrypt() or decrypt(). Each chunk was then encrypted or decrypted independently using the encrypt() or decrypt() methods respectively. Finally, the encrypted or decrypted chunks were appended back together for the final output.
 
-\subsubsection{Vigenere Cipher}
+\subsubsection{Vigen\`{e}re Cipher}
 \hspace*{\fill} \\ % force newline
-We wrote two methods in Java for the Vigenere Cipher, an encoding and decoding method. Both methods take two Strings, the text to be encoded or decoded and the key. In both methods, the text and key are converted to uppercase letters and then split into a character array. Then the methods iterate over every character in the text character array and finds the key character the iteration is currently at (starting at zero). If encoding, the two characters are summed, mod 26, and then converted to a character. If decoding, the key value is subtracted from the text character, add 26 to the difference, mod 26, then converted to a character. After each iteration, the key character is advanced to the next character (or wrapped to the first character if at the end of the key).
+We wrote two methods in Java for the Vigen\`{e}re Cipher, an encoding and decoding method. Both methods take two Strings, the text to be encoded or decoded and the key. In both methods, the text and key are converted to uppercase letters and then split into a character array. Then the methods iterate over every character in the text character array and finds the key character the iteration is currently at (starting at zero). If encoding, the two characters are summed, mod 26, and then converted to a character. If decoding, the key value is subtracted from the text character, add 26 to the difference, mod 26, then converted to a character. After each iteration, the key character is advanced to the next character (or wrapped to the first character if at the end of the key).
 
 \subsection{SecuritySuiteGUI}\label{sec:gui}
 
@@ -245,7 +244,7 @@ We wrote two methods in Java for the Vigenere Cipher, an encoding and decoding m
   \label{fig:one}
 \end{figure}
 
-The GUI (seen in Figure \ref{fig:one}) offers an interface for using all of the algorithms described in the previous sections. For the Vigenere cipher, the algorithm operates on characters in an alphabet, so the key and text are both interpreted as such. However the rest of the algorithms operate at a binary level, so everything is interpreted/displayed as hexadecimal (the actual encodings used in practice for the messages are not important for using the algorithms).
+The GUI (seen in Figure \ref{fig:one}) offers an interface for using all of the algorithms described in the previous sections. For the Vigen\`{e}re cipher, the algorithm operates on characters in an alphabet, so the key and text are both interpreted as such. However the rest of the algorithms operate at a binary level, so everything is interpreted/displayed as hexadecimal (the actual encodings used in practice for the messages are not important for using the algorithms).
 
 Each row corresponds to one algorithm function, all algorithms have inputs on the left and then an output on the right, except for RSA keygen, which has no inputs and 3 outputs which compose a keypair.
 
@@ -253,11 +252,11 @@ The GUI delegates to the implementations, by interpreting the text, and transfor
 
 \subsection{Hashcat}\label{sec:hashcat}
 
-\textsc{Hashcat} is a software tool used to crack passwords by leveraging the highly-parallelized general purpose computation capabilities of GPU \cite{Hashcat}. \textsc{Hashcat} will calculate hashes based on one of several attack modes, and the hashes are automatically checked against the hashes selected to be attacked.
+Hashcat is a software tool used to crack passwords by leveraging the highly-parallelized general purpose computation capabilities of GPU \cite{Hashcat}. hashcat will calculate hashes based on one of several attack modes, and the hashes are automatically checked against the hashes selected to be attacked.
 
-The most important option when using \textsc{Hashcat} is the \texttt{hash-type}, which specifies the actual hash algorithm that will be used for the attack. For example, you can choose a simple hash algorithm such as \texttt{"md5"}, or you may choose a composition of algorithms such as \texttt{"sha1(\$salt.sha1(\$pass))"}.
+The most important option when using hashcat is the \texttt{hash-type}, which specifies the actual hash algorithm that will be used for the attack. For example, you can choose a simple hash algorithm such as \texttt{"md5"}, or you may choose a composition of algorithms such as \texttt{"sha1(\$salt.sha1(\$pass))"}.
 
-Depending on the algorithm, \textsc{Hashcat} may or may not be able to leverage the GPU's capabilities effectively. Some algorithms, such as \texttt{bcrypt} are specifically designed to be difficult to parallelize in GPU hardware. Despite having thousands of cores to parallel computation, the algorithm is bottlenecked by the shared memory bus since the algorithm requires operating on a shared block of memory. Other algorithms, such as \texttt{MD5} are able to be run on the order of \textit{trillions} of time per second on modern hardware setups.
+Depending on the algorithm, hashcat may or may not be able to leverage the GPU's capabilities effectively. Some algorithms, such as \texttt{bcrypt} are specifically designed to be difficult to parallelize in GPU hardware. Despite having thousands of cores to parallel computation, the algorithm is bottlenecked by the shared memory bus since the algorithm requires operating on a shared block of memory. Other algorithms, such as \texttt{MD5} are able to be run on the order of \textit{trillions} of time per second on modern hardware setups.
 
 The second required option is an \texttt{attack mode}. The simplest is a \texttt{brute-force attack}, which tries all possible combinations in a given keyspace. For example, a brute-force attack may be done on the following charset:
 
@@ -292,15 +291,17 @@ Many of these assumptions are based on the idea of a very general, human target.
 
 An example of this would be if we knew our target had children, and figured they may use their children's names in their passwords. We can use the \texttt{hybrid attack} mode to combine a dictionary with a mask, for example if our dictionary is \verb|{jim,jane,jack}|, and we use the mask \texttt{?d?d?d}, then we can try all the passwords of the form \texttt{[name][d][d][d]} such as \texttt{jim123}, \texttt{jane032}, and so on. This variation would have a search space to $3^110^3$ passwords (about 12 bits of entropy).
 
-An interesting limitation of many of these methods is the GPU computing platform itself. For example, with a dictionary attack, Hashcat can only combine two dictionaries, not three. When doing an attack by combining 3 dictionary words, the CPU must be used, which then becomes the bottleneck. Candidate passwords can be piped from stdout of the separate CPU-powered program into stdin of Hashcat.
+An interesting limitation of many of these methods is the GPU computing platform itself. For example, with a dictionary attack, hashcat can only combine two dictionaries, not three. When doing an attack by combining 3 dictionary words, the CPU must be used, which then becomes the bottleneck. Candidate passwords can be piped from stdout of the separate CPU-powered program into stdin of hashcat.
 
-\section{Vigenere Cipher Cracker}\label{sec:vinegar}
+In the hashcat demo, we explore all of these ideas on some real-world datasets, such as a list of the most commonly-used passwords, and using dictionaries comprised of common English words. We perform many simple attacks that are tractable on a weaker machine, and then leverage an Amazon \textit{EC2 p2.xlarge} instance, with access to a NVIDIA K80 GPU in order to perform an attack requiring a bit more computing power.
 
-We wrote a Vigenere Cipher Cracker using a Ruby script that breaks down the steps needed to find the key for an encoded text. We encoded the first sentence of "A Tale of Two Cities" and used the following steps to determine that "LEMON" was the key used to encode the text.
+\section{Vigen\`{e}re Cipher Cracker}\label{sec:vinegar}
+
+We wrote a Vigen\`{e}re Cipher Cracker using a Ruby script that breaks down the steps needed to find the key for an encoded text. We encoded the first sentence of "A Tale of Two Cities" and used the following steps to determine that "LEMON" was the key used to encode the text.
 
 The first step is to remove all non-letters form the text (such as spaces, punctuation, etc.) and make the text the same case, we chose uppercase.
 
-Then we needed to find the letter position offsets between repeated substrings within the text. We used substrings of size 3 and iterated through the text, finding repeated instances of the substring. Then we subtracted the positions of the beginning letters of the substring occurances to find the offset and printed them out. The offsets can be used to find the likely length of the key.
+Then we needed to find the letter position offsets between repeated substrings within the text. We used substrings of size 3 and iterated through the text, finding repeated instances of the substring. Then we subtracted the positions of the beginning letters of the substring occurrences to find the offset and printed them out. The offsets can be used to find the likely length of the key.
 
 We then prompted the user to input their guess for the length of the key. A likely length would be a common factor amongst all or most of the offsets. In our case, a common factor is 5, therefore 5 should be a good guess.
 
@@ -308,7 +309,7 @@ Using the inputted length from the user, we divided the text into chunks of that
 
 Then we counted the number of times each letter occurred in each position in the 5 letter chunk. Due to 'E' being the most common letter in the English language, we can subtract 'E' from each letter to get the most likely letters in the key. We printed out the top 3 likely letters for each letter position for the key.
 
-Then we found all combinations of letters in each position that could be a possible key and printed them out (243 possible keys). We then decyphered the text using each of the 243 keys and compared the letter frequency of the decyphered text to the actual letter frequency of the English language to find the correlation frequency. After going through each key, we printed out the top 10 correlation frequencies and the keys that corresponded to them. It is very likely the correct key is the one with one of the highest correlation frequencies. In our case, the highest correlation frequency was "LEMON", which was also the correct key.
+Then we found all combinations of letters in each position that could be a possible key and printed them out (243 possible keys). We then deciphered the text using each of the 243 keys and compared the letter frequency of the deciphered text to the actual letter frequency of the English language to find the correlation frequency. After going through each key, we printed out the top 10 correlation frequencies and the keys that corresponded to them. It is very likely the correct key is the one with one of the highest correlation frequencies. In our case, the highest correlation frequency was "LEMON", which was also the correct key.
 
 \section{Results}\label{sec:results}
 
