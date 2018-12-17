@@ -311,26 +311,16 @@ Then we counted the number of times each letter occurred in each position in the
 
 Then we found all combinations of letters in each position that could be a possible key and printed them out (243 possible keys). We then deciphered the text using each of the 243 keys and compared the letter frequency of the deciphered text to the actual letter frequency of the English language to find the correlation frequency. After going through each key, we printed out the top 10 correlation frequencies and the keys that corresponded to them. It is very likely the correct key is the one with one of the highest correlation frequencies. In our case, the highest correlation frequency was "LEMON", which was also the correct key.
 
-\section{Results}\label{sec:results}
-
-In our work, we used DES, Vigen\`{e}re, and RSA encrypt and decrypt messages. However, each approach had differing degrees of implementation complexity and confidentiality strength. In DES, the original message had to undergo many stages of modification before returning an encrypted message. Compared to DES, the Vigen\`{e}re cipher was much easier to understand as it performed a set number of rotations for each letter in the original message. In RSA, the key generation step required some understanding of modular arithmetic, but the encryption and decryption steps required a single modular exponentiation. In addition to differing implementation complexities in each cryptographic algorithm, each algorithm also had vulnerabilities or shortcomings. As of current literature, DES is considered unsafe as it is susceptible to cryptanalysis attacks \cite{DESCryptanalysis}. Though AES came to replace DES and is considered secure, AES and DES are both symmetric encryption methods that rely on a secure initial key exchange. Like DES and AES, the Vigen\`{e}re cipher is also a symmetric algorithm and requires the same dependency of a secure initial key exchange. However, as was shown by our Vigen\`{e}re statistical attack tool, Vigen\`{e}re is much more susceptible to attacks than DES and AES. Unlike DES, AES, and Vigen\`{e}re, RSA is an asymmetric cryptographic algorithm that does not rely on a secure initial key exchange. However, RSA relies on the assumption that it is computationally difficult to factor large primes and solve the Discrete Log Problem. 
-
 \section{Related Work}\label{sec:relatedwork}
 
 Related work. Examples of citations with DOIs: \cite{2004:ITE:1009386.1010128, Kirschmer:2010:AEI:1958016.1958018}. Online citations: \cite{TUGInstmem, Thornburg01, CTANacmart}.
 
 \section{Discussion}\label{sec:discussion}
 
-What didn't we cover? :O
+In our work, we used DES, Vigen\`{e}re, and RSA encrypt and decrypt messages. However, each approach had differing degrees of implementation complexity and confidentiality strength. In DES, the original message had to undergo many stages of modification before returning an encrypted message. Compared to DES, the Vigen\`{e}re cipher was much easier to understand as it performed a set number of rotations for each letter in the original message. In RSA, the key generation step required some understanding of modular arithmetic, but the encryption and decryption steps required a single modular exponentiation. In addition to differing implementation complexities in each cryptographic algorithm, each algorithm also had vulnerabilities or shortcomings. As of current literature, DES is considered unsafe as it is susceptible to cryptanalysis attacks \cite{DESCryptanalysis}. Though AES came to replace DES and is considered secure, AES and DES are both symmetric encryption methods that rely on a secure initial key exchange. Like DES and AES, the Vigen\`{e}re cipher is also a symmetric algorithm and requires the same dependency of a secure initial key exchange. However, as was shown by our Vigen\`{e}re statistical attack tool, Vigen\`{e}re is much more susceptible to attacks than DES and AES. Unlike DES, AES, and Vigen\`{e}re, RSA is an asymmetric cryptographic algorithm that does not rely on a secure initial key exchange. However, RSA relies on the assumption that it is computationally difficult to factor large primes and solve the Discrete Log Problem. 
 
 % Appendix
 \appendix
-\section{Elaboration on the ABCD algorithm}
-
-This is an appendix, maybe about some equation
-\begin{displaymath}
-P=NP
-\end{displaymath}
 
 \section{Supplementary Materials}
 
