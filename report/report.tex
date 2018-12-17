@@ -76,7 +76,7 @@ Sensitive data such as bank details, and personal information is continuously ex
 
 Modern communications require special methods to ensure the confidentiality of information in the presence of adversaries that want to intercept or maliciously modify communicated data. An adversary may try to compromise the confidentiality of data or bypass an authentication altogether with a carefully-crafted message.
 
-This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms, and then Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with hashcat in Section [\ref{sec:hashcat}]. We demonstrate how the Vigen\`{e}re cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. Finally, we discuss our conclusions in Section [\ref{sec:conclusion}].
+This article is divided into several sections, in Section [\ref{sec:intro}], we introduce the cryptographic environment that we will explore. In Section [\ref{sec:algorithms}] we describe implementations of several symmetric and asymmetric encryption algorithms. In Section [\ref{sec:gui}] we present our tool \textsc{SecuritySuiteGUI}, a software suite to experiment with these implementations. We then demonstrate the power of password cracking with hashcat in Section [\ref{sec:hashcat}]. We also demonstrate how the Vigen\`{e}re cipher may be easily cracked with computational power in Section [\ref{sec:vinegar}]. Finally, we discuss our conclusions in Section [\ref{sec:conclusion}].
 
 \subsection{Overview of Cryptography Algorithms}
 \subsubsection{DES}
@@ -91,7 +91,7 @@ $L_{n} = R_{n-1}$
 $R_{n} = L_{n-1} \bigoplus f(R_{n-1}, K_{n})$ 
 	The Feistel function involves taking in a subkey $K_{n}$ and block $R_{n - 1}$. It permutes $R_{n - 1}$ using table E, and then XORs the result with $K_{n}$. It then takes the resulting block and permutes it using a series of 8 S-boxes. There is then a final permutation on the S-box output with table P. At the end of the iterations we are left with a concatenated block, $R_{16}L_{16}$. This block is finally permuted with a table $IP^{-1}$, and returned as the output of the DES algorithm. Note that encryption and decryption are almost exactly the same, except for the order in which the subkeys are applied. For encryption, the keys are applied $K_{1}$ to $K_{16}$ and for decryption they are applied $K_{16}$ to $K_{1}$.
 
-While DES used to be heavily adopted, due to the small size of the key it has been found to be insecure by a brute force attack \cite{DESCryptanalysis}. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
+Due to the small size of the key it has been found to be insecure by a brute force attack \cite{DESCryptanalysis}. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
 
 \subsubsection{RSA}
 \hspace*{\fill} \\ % force newline
@@ -159,7 +159,7 @@ Now that we have shown the correctness and mechanic of RSA, we will now discuss 
 
 \subsubsection{Vigen\`{e}re Cipher}
 \hspace*{\fill} \\ % force newline
-The Vigen\`{e}re Cipher is a polyalphabetic cipher which builds on the Caesar Cipher, which shifts all letters in a text by one consistent letter value. The Vigen\`{e}re Cipher also shifts all letters in a text but uses a phrase cyclically, rather than one letter. Letters have values A = 0, B = 1, ..., Z = 25, and similar to the Caesar Cipher, the letter value from the text and key are added together, mod 26 to get the encoded text. An example of how to encode text using a key can be seen in Figure 1.
+The Vigen\`{e}re Cipher is a polyalphabetic cipher which builds on the Caesar Cipher. The Caesar Cipher works by shifting all letters in a text by one consistent letter value. Like the Caesar Cipher, The Vigen\`{e}re Cipher also shifts all letters in a text but uses a phrase cyclically rather than a single letter. Letters have values A = 0, B = 1, ..., Z = 25, and similar to the Caesar Cipher, the letter value from the text and key are added together, mod 26 to get the encoded text. An example of how to encode text using a key can be seen in Figure 1.
 
 \begin{figure}
 \centering
@@ -244,9 +244,9 @@ We wrote two methods in Java for the Vigen\`{e}re Cipher, an encoding and decodi
   \label{fig:one}
 \end{figure}
 
-The GUI (seen in Figure \ref{fig:one}) offers an interface for using all of the algorithms described in the previous sections. For the Vigen\`{e}re cipher, the algorithm operates on characters in an alphabet, so the key and text are both interpreted as such. However the rest of the algorithms operate at a binary level, so everything is interpreted/displayed as hexadecimal (the actual encodings used in practice for the messages are not important for using the algorithms).
+The GUI (seen in Figure \ref{fig:one}) is an interface for using all of the algorithms described in the previous sections. For the Vigen\`{e}re cipher, the algorithm operates on characters in an alphabet, so the key and text are both interpreted as such. However the rest of the algorithms operate at a binary level, so everything is interpreted/displayed as hexadecimal (the actual encodings used in practice for the messages are not important for using the algorithms).
 
-Each row corresponds to one algorithm function, all algorithms have inputs on the left and then an output on the right, except for RSA keygen, which has no inputs and 3 outputs which compose a keypair.
+Each row corresponds to one algorithm function, all algorithms have inputs on the left and then an output on the right, except for RSA key generation, which has no inputs and 3 outputs which compose a KeyPair object.
 
 The GUI delegates to the implementations, by interpreting the text, and transforming between byte arrays and hexadecimal string encoding where appropriate. For DES, the program invokes python as a separate process using the API specified in the DES section.
 
@@ -299,9 +299,9 @@ In the hashcat demo, we explore all of these ideas on some real-world datasets, 
 
 We wrote a Vigen\`{e}re Cipher Cracker using a Ruby script that breaks down the steps needed to find the key for an encoded text. We encoded the first sentence of "A Tale of Two Cities" and used the following steps to determine that "LEMON" was the key used to encode the text.
 
-The first step is to remove all non-letters form the text (such as spaces, punctuation, etc.) and make the text the same case, we chose uppercase.
+The first step is to remove all non-letters form the text such as spaces or punctuation and make the text the same case. In this case we chose uppercase.
 
-Then we needed to find the letter position offsets between repeated substrings within the text. We used substrings of size 3 and iterated through the text, finding repeated instances of the substring. Then we subtracted the positions of the beginning letters of the substring occurrences to find the offset and printed them out. The offsets can be used to find the likely length of the key.
+Next, we needed to find the letter position offsets between repeated substrings within the text. We used substrings of size 3 and iterated through the text, finding repeated instances of the substring. Then we subtracted the positions of the beginning letters of the substring occurrences to find the offset and printed them out. The offsets can be used to find the likely length of the key.
 
 We then prompted the user to input their guess for the length of the key. A likely length would be a common factor amongst all or most of the offsets. In our case, a common factor is 5, therefore 5 should be a good guess.
 
