@@ -224,7 +224,7 @@ $k_{priv} \longleftarrow e^{-1} \mod{\lambda}$
 \caption{RSA Keygen Pseudocode \cite{RSA}}
 \label{alg:rsa-keygen}
 \end{algorithm}
-
+\hspace*{\fill} \\ % force newline
 In our RSA implementation, we implemented three main stub methods: generateKeyPair(), encrypt(), and decrypt(). In generateKeyPair(), the function took in a keyLength in terms of bits as input and returned a KeyPair object as output. The KeyPair object contained instance fields: public key, public key exponent, and private key. We then used the generated KeyPair to encrypt and decrypt messages. In encrypt(), the function took in a message, a public key, and a public key exponent as input and returned an encrypted message as output. In decrypt(), the function took in an encrypted message, a public key, and a private key as input and returned the decrypted version of the encrypted message.
 
 In addition to implementing the aforementioned stub methods, we also added functionality for chunking long messages. Because RSA uses the modulus function, we must ensure the length of the message is less than or equal to the length of the key (i.e. the modulus), else the wrong value would be returned after encryption or decryption. To support messages of longer length, we chunked the original input message into several sections of appropriate length before running encrypt() or decrypt(). Each chunk was then encrypted or decrypted independently using the encrypt() or decrypt() methods respectively. Finally, the encrypted or decrypted chunks were appended back together for the final output.
