@@ -91,7 +91,7 @@ $L_{n} = R_{n-1}$
 $R_{n} = L_{n-1} \bigoplus f(R_{n-1}, K_{n})$ 
 	The Feistel function involves taking in a subkey $K_{n}$ and block $R_{n - 1}$. It permutes $R_{n - 1}$ using table E, and then XORs the result with $K_{n}$. It then takes the resulting block and permutes it using a series of 8 S-boxes. There is then a final permutation on the S-box output with table P. At the end of the iterations we are left with a concatenated block, $R_{16}L_{16}$. This block is finally permuted with a table $IP^{-1}$, and returned as the output of the DES algorithm. Note that encryption and decryption are almost exactly the same, except for the order in which the subkeys are applied. For encryption, the keys are applied $K_{1}$ to $K_{16}$ and for decryption they are applied $K_{16}$ to $K_{1}$.
 
-While DES used to be heavily adopted, due to the small size of the key it has been found to be insecure by a brute force attack. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
+While DES used to be heavily adopted, due to the small size of the key it has been found to be insecure by a brute force attack \cite{DESCryptanalysis}. It is no longer used as a standard. Though Triple DES, an extension of DES, is thought to be secure, its implementation is out of the scope of this paper. 
 
 \subsubsection{RSA}
 \hspace*{\fill} \\ % force newline
